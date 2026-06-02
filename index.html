@@ -68,6 +68,46 @@
 
         .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Moodboard image styles */
+        .mood-img-wrap {
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #27272a;
+        }
+        .mood-img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(9,9,11,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .mood-img-wrap:hover::after { opacity: 1; }
+        .mood-img-wrap img {
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+            filter: grayscale(30%) contrast(1.1);
+        }
+        .mood-img-wrap:hover img {
+            transform: scale(1.06);
+            filter: grayscale(0%) contrast(1);
+        }
+        .mood-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.4s ease;
+        }
+        .mood-img-wrap:hover .mood-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="font-sans antialiased text-paper bg-void">
@@ -78,8 +118,11 @@
                 <div class="w-4 h-4 bg-lime"></div>
                 WeCredit
             </div>
-            <div class="font-mono text-xs uppercase tracking-widest text-muted hidden md:block">
-                Brand Audit / Vol. 1
+            <div class="hidden md:flex items-center gap-6">
+                <a href="#strategy" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Strategy</a>
+                <a href="#moodboard" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Moodboard</a>
+                <a href="#pillars" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Content</a>
+                <span class="font-mono text-xs uppercase tracking-widest text-zinc">Vol. 1</span>
             </div>
         </div>
     </nav>
@@ -114,7 +157,7 @@
         </div>
     </div>
 
-    <section class="py-24 px-6 border-b-2 border-zinc">
+    <section id="strategy" class="py-24 px-6 border-b-2 border-zinc">
         <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 border-2 border-zinc reveal">
                 
@@ -170,7 +213,141 @@
         </div>
     </section>
 
-    <section class="py-24 px-6 bg-lime text-void">
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- MOODBOARD SECTION -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="moodboard" class="py-24 px-6 border-b-2 border-zinc bg-[#0d0d0f]">
+        <div class="max-w-screen-2xl mx-auto">
+
+            <!-- Section Header -->
+            <div class="mb-16 reveal">
+                <div class="font-mono text-lime text-sm uppercase tracking-widest mb-6 flex items-center gap-4">
+                    <span class="w-12 h-[1px] bg-lime inline-block"></span>
+                    Visual Intelligence
+                </div>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+                    <div>
+                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-4">AI-Generated<br>Mood<span style="-webkit-text-stroke: 2px #f4f4f5; color: transparent;">board.</span></h2>
+                        <p class="font-mono text-muted text-sm max-w-lg leading-relaxed">Every visual asset below was generated to define WeCredit's visual language. Dark. Brutal. Unapologetically neon. No stock photography. No corporate blue.</p>
+                    </div>
+                    <div class="brutal-border-lime px-4 py-2 font-mono text-xs uppercase tracking-widest text-lime bg-void">
+                        6 Assets / 3 Categories
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category I: Product & Interface -->
+            <div class="mb-16 reveal">
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 01</span>
+                    <h3 class="text-xl font-bold uppercase tracking-tight">Product & Interface</h3>
+                    <span class="flex-1 h-[1px] bg-zinc"></span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="mood-img-wrap aspect-[4/3]">
+                        <img src="assets/app-ui.png" alt="WeCredit Brutalist App Interface" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">App Interface</span>
+                            <p class="text-paper text-xs mt-1">Dark-mode dashboard. Monospace data. Zero decoration.</p>
+                        </div>
+                    </div>
+                    <div class="mood-img-wrap aspect-[4/3]">
+                        <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">The Naked Receipt</span>
+                            <p class="text-paper text-xs mt-1">Open-source economics. Every rupee accounted for.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category II: Culture & Identity -->
+            <div class="mb-16 reveal">
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 02</span>
+                    <h3 class="text-xl font-bold uppercase tracking-tight">Culture & Identity</h3>
+                    <span class="flex-1 h-[1px] bg-zinc"></span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
+                        <img src="assets/urban-hustle.png" alt="Gen-Z Urban Entrepreneur" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">The Credit Ghost</span>
+                            <p class="text-paper text-xs mt-1">Invisible to banks. Visible to us.</p>
+                        </div>
+                    </div>
+                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
+                        <img src="assets/typography.png" alt="Brutalist Brand Typography" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">Type System</span>
+                            <p class="text-paper text-xs mt-1">Syne + Space Mono. Bold. Industrial.</p>
+                        </div>
+                    </div>
+                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
+                        <img src="assets/rebellion.png" alt="Anti-Bank Rebellion Collage" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">Anti-Establishment</span>
+                            <p class="text-paper text-xs mt-1">Deconstructed finance. Punk zine energy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category III: Raw Aesthetics -->
+            <div class="reveal">
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 03</span>
+                    <h3 class="text-xl font-bold uppercase tracking-tight">Raw Aesthetics</h3>
+                    <span class="flex-1 h-[1px] bg-zinc"></span>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="mood-img-wrap aspect-[21/9]">
+                        <img src="assets/gig-workspace.png" alt="Gen-Z Freelancer Workspace" class="w-full h-full object-cover">
+                        <div class="mood-label font-mono">
+                            <span class="text-lime text-[10px] uppercase tracking-widest">The Hustle Desk</span>
+                            <p class="text-paper text-xs mt-1">Where ₹10k becomes ₹28k in 48 hours. No corner office required.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Palette Strip -->
+            <div class="mt-16 brutal-border p-6 reveal">
+                <h4 class="font-mono text-xs uppercase tracking-widest text-muted mb-6">Brand Color System</h4>
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-void border-2 border-zinc"></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Void</span><span class="text-muted">#09090b</span></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-lime"></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Neon Lime</span><span class="text-muted">#ccff00</span></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-paper"></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Paper</span><span class="text-muted">#f4f4f5</span></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-zinc"></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Zinc</span><span class="text-muted">#27272a</span></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-muted"></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Muted</span><span class="text-muted">#a1a1aa</span></div>
+                    </div>
+                </div>
+                <div class="mt-6 flex flex-wrap gap-4">
+                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Font: Syne (Headings)</div>
+                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Font: Space Mono (Body/Data)</div>
+                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Borders: 2px Solid</div>
+                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Radius: 0px (Always)</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="pillars" class="py-24 px-6 bg-lime text-void">
         <div class="max-w-screen-2xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
                 <div>
