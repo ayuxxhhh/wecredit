@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WeCredit | The Credit Dignity Manifesto</title>
+    <!-- Prevent FOUC (Flash of Unstyled Content) for Dark Mode -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +22,7 @@
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -21,23 +30,24 @@
                         mono: ['"Space Mono"', 'monospace'],
                     },
                     colors: {
-                        void: '#070709',       /* Deepest Black */
-                        cardDark: '#121217',   /* Brighter for readability contrast */
-                        cardLight: '#18181c',  /* Slightly brighter card */
-                        paper: '#f4f4f5',      /* Off-white */
+                        void: '#070709',       
+                        cardDark: '#121217',   
+                        cardLight: '#18181c',  
+                        paper: '#f4f4f5',      
                         brandBlue: '#3b82f6',  
                         brandBlueDark: '#1d4ed8',
                         zinc: '#27272a',
-                        muted: '#a1a1aa'       /* Brightened from 8a8a93 for readability */
+                        muted: '#a1a1aa'       
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #070709; color: #f4f4f5; overflow-x: hidden; }
+        /* Smooth transitions for theme switching */
+        body { transition: background-color 0.5s ease, color 0.5s ease; overflow-x: hidden; }
         @media (pointer: fine) { body { cursor: none; } }
-        ::selection { background-color: rgba(59, 130, 246, 0.3); color: #f4f4f5; }
+        ::selection { background-color: rgba(59, 130, 246, 0.3); }
         
         /* Typography adjustments */
         p { line-height: 1.8; }
@@ -63,6 +73,7 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 9998; opacity: 0.015; mix-blend-mode: overlay;
         }
+        .dark #noise-canvas { opacity: 0.025; } /* Slightly stronger noise in dark mode */
 
         /* Lenis Smooth Scroll */
         html.lenis, html.lenis body { height: auto; }
@@ -78,42 +89,29 @@
         
         /* Sleek Dark Receipt */
         .receipt-bg {
-            background-color: #121217;
-            color: #f4f4f5;
-            background-image: radial-gradient(#27272a 1px, transparent 1px);
+            border: 1px solid;
+            background-image: radial-gradient(currentColor 1px, transparent 1px);
             background-size: 12px 12px;
-            border: 1px solid #27272a;
         }
         .zig-zag-bottom { position: relative; }
         .zig-zag-bottom::after {
             content: ""; position: absolute; bottom: -8px; left: 0; right: 0; height: 8px;
-            background: linear-gradient(-45deg, transparent 33%, #121217 33%, #121217 66%, transparent 66%), linear-gradient(45deg, transparent 33%, #121217 33%, #121217 66%, transparent 66%);
+            background: linear-gradient(-45deg, transparent 33%, var(--bg-color) 33%, var(--bg-color) 66%, transparent 66%), 
+                        linear-gradient(45deg, transparent 33%, var(--bg-color) 33%, var(--bg-color) 66%, transparent 66%);
             background-size: 16px 16px;
         }
+        .light-receipt { --bg-color: #f3f4f6; }
+        .dark .dark-receipt { --bg-color: #121217; }
 
         /* Moodboard image styles */
         .mood-img-wrap {
-            overflow: hidden; position: relative; border: 1px solid #27272a; border-radius: 0.75rem;
+            overflow: hidden; position: relative; border-radius: 0.75rem;
         }
-        .mood-img-wrap::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(180deg, transparent 40%, rgba(7,7,9,0.95) 100%);
-            opacity: 0.7; transition: opacity 0.7s ease; pointer-events: none;
-        }
-        .mood-img-wrap:hover::after { opacity: 1; }
         .mood-img-wrap img {
             transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease;
-            filter: grayscale(60%) contrast(1.1) brightness(0.8);
         }
         .mood-img-wrap:hover img {
-            transform: scale(1.05); filter: grayscale(0%) contrast(1) brightness(1);
-        }
-        .mood-label {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; z-index: 10;
-        }
-        @media (hover: hover) {
-            .mood-label { opacity: 0; transform: translateY(15px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-            .mood-img-wrap:hover .mood-label { opacity: 1; transform: translateY(0); }
+            transform: scale(1.05); 
         }
         
         /* Text reveal mask */
@@ -121,23 +119,36 @@
         .text-mask span { display: inline-block; transform: translateY(110%); }
     </style>
 </head>
-<body class="font-sans antialiased text-paper bg-void">
+<body class="font-sans antialiased text-gray-900 bg-gray-50 dark:text-paper dark:bg-void">
 
     <!-- Custom Cursor & Noise -->
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
     <canvas id="noise-canvas"></canvas>
 
-    <nav class="fixed w-full top-0 z-50 bg-void/80 backdrop-blur-md border-b border-white/5">
+    <nav class="fixed w-full top-0 z-50 bg-white/80 dark:bg-void/80 backdrop-blur-md border-b border-gray-200 dark:border-white/5 transition-colors duration-500">
         <div class="max-w-screen-2xl mx-auto px-5 md:px-8 py-4 md:py-5 flex justify-between items-center">
             <div class="font-sans text-lg md:text-xl font-bold tracking-tight flex items-center gap-3">
                 <div class="w-3 h-3 bg-brandBlue rounded-full shadow-[0_0_10px_#3b82f6]"></div>
                 WeCredit
             </div>
-            <div class="hidden md:flex items-center gap-8">
-                <a href="#strategy" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Audience</a>
-                <a href="#moodboard" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Dignity</a>
-                <a href="#pillars" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Commitment</a>
+            <div class="flex items-center gap-4 md:gap-8">
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#strategy" class="font-mono text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-muted hover:text-brandBlue transition-colors duration-300">Audience</a>
+                    <a href="#moodboard" class="font-mono text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-muted hover:text-brandBlue transition-colors duration-300">Dignity</a>
+                    <a href="#pillars" class="font-mono text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-muted hover:text-brandBlue transition-colors duration-300">Commitment</a>
+                </div>
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-brandBlue" aria-label="Toggle Dark Mode">
+                    <!-- Moon Icon (shows in Light Mode) -->
+                    <svg id="theme-toggle-dark-icon" class="w-5 h-5 text-gray-800 dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <!-- Sun Icon (shows in Dark Mode) -->
+                    <svg id="theme-toggle-light-icon" class="w-5 h-5 text-yellow-300 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </nav>
@@ -149,16 +160,16 @@
                 <span class="w-8 h-[1px] bg-brandBlue inline-block opacity-50"></span>
                 The Credit Dignity Manifesto
             </div>
-            <h1 class="text-5xl md:text-6xl lg:text-[6.5rem] font-bold leading-[1.05] tracking-tight mb-8 md:mb-12">
+            <h1 class="text-5xl md:text-6xl lg:text-[6.5rem] font-bold leading-[1.05] tracking-tight mb-8 md:mb-12 text-gray-900 dark:text-paper">
                 <span class="text-mask"><span class="hero-text">Honest Information.</span></span><br>
                 <span class="text-mask"><span class="hero-text text-brandBlue">Before You Apply.</span></span>
             </h1>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mt-12 md:mt-24">
-                <p class="font-mono text-muted text-base md:text-lg max-w-xl hero-fade font-light">
+                <p class="font-mono text-gray-600 dark:text-muted text-base md:text-lg max-w-xl hero-fade font-light">
                     The biggest thing standing between credit-uncertain Indians and a loan is not the interest rate. It's the fear of judgment. We treat our users as people who deserve honest information about where they stand—not as leads to be blindly converted.
                 </p>
                 <div class="flex flex-col justify-start md:justify-end items-start md:items-end hero-fade">
-                    <div class="glow-border px-5 py-3 md:px-6 md:py-4 inline-block bg-cardDark text-paper font-mono uppercase text-xs tracking-widest rounded-lg transform md:-rotate-2">
+                    <div class="glow-border px-5 py-3 md:px-6 md:py-4 inline-block bg-white dark:bg-cardDark text-gray-900 dark:text-paper font-mono uppercase text-xs tracking-widest rounded-lg transform md:-rotate-2 shadow-sm dark:shadow-none transition-colors">
                         <span class="text-brandBlue mr-2">✦</span> No Surprise Rejections
                     </div>
                 </div>
@@ -167,35 +178,35 @@
     </section>
 
     <!-- MARQUEE -->
-    <div class="marquee-container relative z-20 bg-cardDark text-brandBlue py-3 md:py-4 font-mono text-xs uppercase tracking-[0.2em]">
+    <div class="marquee-container relative z-20 bg-gray-100 dark:bg-cardDark text-brandBlue py-3 md:py-4 font-mono text-xs uppercase tracking-[0.2em] transition-colors">
         <div class="marquee-content">
             KNOW WHERE YOU STAND ✦ NO SURPRISE REJECTIONS ✦ SOFT ELIGIBILITY CHECKS FIRST ✦ CREDIT DIGNITY ✦ KNOW WHERE YOU STAND ✦ NO SURPRISE REJECTIONS ✦ SOFT ELIGIBILITY CHECKS FIRST ✦ CREDIT DIGNITY ✦
         </div>
     </div>
 
     <!-- STRATEGY SECTION -->
-    <section id="strategy" class="py-16 md:py-32 px-5 md:px-8 bg-void relative z-20">
+    <section id="strategy" class="py-16 md:py-32 px-5 md:px-8 bg-gray-50 dark:bg-void relative z-20 transition-colors">
         <div class="max-w-screen-2xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16">
                 
                 <!-- Target Audience -->
                 <div class="lg:col-span-7 relative gsap-reveal">
-                    <div class="hidden lg:block absolute -top-10 -left-10 text-zinc font-mono text-[12rem] font-bold opacity-10 select-none z-0">01</div>
+                    <div class="hidden lg:block absolute -top-10 -left-10 text-gray-200 dark:text-zinc font-mono text-[12rem] font-bold opacity-30 dark:opacity-10 select-none z-0">01</div>
                     <div class="relative z-10">
                         <h3 class="font-mono text-brandBlue tracking-[0.2em] text-xs uppercase mb-6 md:mb-8">Customer Profile</h3>
-                        <h4 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 leading-tight">Financially Invisible, <br><span class="text-muted font-normal">Not Illiterate.</span></h4>
-                        <p class="text-muted font-mono text-base md:text-lg mb-10 max-w-2xl font-light">
+                        <h4 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 leading-tight">Financially Invisible, <br><span class="text-gray-400 dark:text-muted font-normal">Not Illiterate.</span></h4>
+                        <p class="text-gray-600 dark:text-muted font-mono text-base md:text-lg mb-10 max-w-2xl font-light">
                             Our real user is someone who has been made to feel like a bad bet by the formal banking system. Low CIBIL, informal income, first-generation urban. What they want is not just a loan. They want to know: am I even the kind of person who qualifies?
                         </p>
                         
-                        <div class="space-y-8 font-mono text-base text-paper border-l border-zinc pl-6 md:pl-8">
+                        <div class="space-y-8 font-mono text-base text-gray-900 dark:text-paper border-l border-gray-300 dark:border-zinc pl-6 md:pl-8">
                             <div class="group">
                                 <span class="text-brandBlue block text-sm tracking-widest mb-2 uppercase opacity-80 group-hover:opacity-100 transition-opacity">The 29-Year-Old Executive</span>
-                                <span class="text-muted font-light leading-relaxed block">Works in a logistics firm in Pune, earning ₹28,000/month. Her income is real but irregular. Tried an app, got rejected after entering all details. Felt stupid. Never told anyone.</span>
+                                <span class="text-gray-600 dark:text-muted font-light leading-relaxed block">Works in a logistics firm in Pune, earning ₹28,000/month. Her income is real but irregular. Tried an app, got rejected after entering all details. Felt stupid. Never told anyone.</span>
                             </div>
                             <div class="group">
                                 <span class="text-brandBlue block text-sm tracking-widest mb-2 uppercase opacity-80 group-hover:opacity-100 transition-opacity">The First-Gen Urban Trader</span>
-                                <span class="text-muted font-light leading-relaxed block">Runs massive volume through UPI but lacks 3 years of audited ITRs. Left a bank branch feeling judged by an officer asking for documents he couldn't produce.</span>
+                                <span class="text-gray-600 dark:text-muted font-light leading-relaxed block">Runs massive volume through UPI but lacks 3 years of audited ITRs. Left a bank branch feeling judged by an officer asking for documents he couldn't produce.</span>
                             </div>
                         </div>
                     </div>
@@ -203,13 +214,13 @@
 
                 <!-- Brand Tone -->
                 <div class="lg:col-span-5 flex flex-col justify-center gsap-reveal mt-8 lg:mt-0">
-                    <div class="bg-cardDark rounded-xl p-8 md:p-10 glow-border">
+                    <div class="bg-white dark:bg-cardDark rounded-xl p-8 md:p-10 glow-border shadow-sm dark:shadow-none transition-colors">
                         <h3 class="font-mono text-brandBlue tracking-[0.2em] text-xs uppercase mb-4 md:mb-6">The Enemy</h3>
                         <h4 class="text-2xl md:text-3xl font-bold tracking-tight mb-4 md:mb-6">"Credit is not for people like me."</h4>
-                        <p class="text-muted font-mono text-base mb-6 md:mb-8 font-light">
+                        <p class="text-gray-600 dark:text-muted font-mono text-base mb-6 md:mb-8 font-light">
                             Our combat is not against a specific corporate entity. It's against an internal systemic lie absorbed after years of rejection signals. We don't combat this by saying "everyone qualifies"—that's a lie. We combat it by delivering the truth upfront.
                         </p>
-                        <div class="border-t border-zinc pt-6 font-mono text-xs text-brandBlue uppercase tracking-[0.2em]">
+                        <div class="border-t border-gray-200 dark:border-zinc pt-6 font-mono text-xs text-brandBlue uppercase tracking-[0.2em]">
                             Our Stance: Knowing where you stand is the first step, not a judgment.
                         </div>
                     </div>
@@ -220,72 +231,44 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- MOODBOARD SECTION (Compact Grid) -->
+    <!-- MOODBOARD SECTION (Bold & Minimal) -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <section id="moodboard" class="py-16 md:py-32 px-5 md:px-8 bg-cardLight border-t border-zinc">
+    <section id="moodboard" class="py-16 md:py-32 px-5 md:px-8 bg-gray-100 dark:bg-cardLight border-y border-gray-200 dark:border-zinc transition-colors">
         <div class="max-w-screen-2xl mx-auto">
 
             <!-- Section Header -->
-            <div class="mb-12 md:mb-20 gsap-reveal">
-                <div class="font-mono text-brandBlue text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 flex items-center gap-4">
+            <div class="mb-12 md:mb-20 gsap-reveal text-center">
+                <div class="font-mono text-brandBlue text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 flex items-center justify-center gap-4">
                     <span class="w-8 h-[1px] bg-brandBlue inline-block opacity-50"></span>
-                    Visual Proof Points
+                    Visual Identity
+                    <span class="w-8 h-[1px] bg-brandBlue inline-block opacity-50"></span>
                 </div>
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 md:gap-12">
-                    <div class="max-w-3xl">
-                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-tight mb-4 md:mb-6">Visualizing <span class="text-muted" style="-webkit-text-stroke: 1px #a1a1aa; color: transparent;">Dignity.</span></h2>
-                        <p class="font-mono text-muted text-base md:text-lg font-light">Translating the abstract promise of "Dignity" into product and cultural realities. Dark mode. Mature. Transparent. Safe.</p>
-                    </div>
-                    <div class="px-4 py-2 md:px-5 md:py-3 font-mono text-xs uppercase tracking-[0.3em] text-brandBlue glow-border rounded-full inline-block">
-                        Compact Index
-                    </div>
-                </div>
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-tight mb-4 md:mb-6 text-gray-900 dark:text-paper">Minimal. <span class="text-brandBlue">Bold.</span> True.</h2>
+                <p class="font-mono text-gray-600 dark:text-muted text-base md:text-lg font-light max-w-2xl mx-auto">Replacing generic stock photos with premium, bespoke imagery that natively integrates the WeCredit identity. Clean lines, sophisticated colors, absolute transparency.</p>
             </div>
 
-            <!-- Compact Image Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 gsap-reveal">
+            <!-- New Asymmetrical Editorial Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 gsap-reveal">
                 
-                <div class="mood-img-wrap aspect-square lg:col-span-2">
-                    <img src="assets/app-ui.png" alt="WeCredit Dashboard Interface" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">The Soft Check</span>
-                        <p class="font-mono text-paper text-xs mt-2 font-light hidden sm:block">Checking eligibility without hurting scores.</p>
+                <!-- Image 1: The Poster -->
+                <div class="lg:col-span-5 flex flex-col justify-center">
+                    <div class="mood-img-wrap border border-gray-200 dark:border-zinc shadow-xl">
+                        <img src="assets/poster.png" alt="WeCredit Typography Poster" class="w-full h-auto object-cover">
                     </div>
-                </div>
-                
-                <div class="mood-img-wrap aspect-square">
-                    <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">The Full Picture</span>
-                    </div>
-                </div>
-                
-                <div class="mood-img-wrap aspect-square">
-                    <img src="assets/urban-hustle.png" alt="Urban Worker" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Forgotten Prime</span>
+                    <div class="mt-6 font-mono">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-paper uppercase tracking-widest mb-2">The Dignity Poster</h4>
+                        <p class="text-sm text-gray-600 dark:text-muted font-light">Bold typography naturally integrating the brand into a statement piece. No watermarks, just high-end editorial presence.</p>
                     </div>
                 </div>
 
-                <div class="mood-img-wrap aspect-video lg:col-span-2">
-                    <img src="assets/gig-workspace.png" alt="Informal Workspace" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Reality of Work</span>
-                        <p class="font-mono text-paper text-xs mt-2 font-light hidden sm:block">Nuanced cashflow of the modern Indian economy.</p>
+                <!-- Image 2: The UI Dashboard -->
+                <div class="lg:col-span-7 flex flex-col justify-center">
+                    <div class="mood-img-wrap border border-gray-200 dark:border-zinc shadow-xl">
+                        <img src="assets/ui.png" alt="WeCredit Minimal Dashboard" class="w-full h-auto object-cover">
                     </div>
-                </div>
-
-                <div class="mood-img-wrap aspect-square lg:aspect-video">
-                    <img src="assets/typography.png" alt="Brand Typography" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Type System</span>
-                    </div>
-                </div>
-
-                <div class="mood-img-wrap aspect-square lg:aspect-video">
-                    <img src="assets/rebellion.png" alt="Empowerment Collage" class="w-full h-full object-cover">
-                    <div class="mood-label">
-                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Displacing Fear</span>
+                    <div class="mt-6 font-mono lg:text-right">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-paper uppercase tracking-widest mb-2">The Interface</h4>
+                        <p class="text-sm text-gray-600 dark:text-muted font-light lg:ml-auto max-w-md">A sophisticated, spacious dashboard reflecting financial clarity. The WeCredit logo sits logically at the helm of the experience.</p>
                     </div>
                 </div>
 
@@ -294,80 +277,80 @@
     </section>
 
     <!-- CONTENT PILLARS / CONTRADICTIONS -->
-    <section id="pillars" class="py-16 md:py-32 px-5 md:px-8 bg-void border-t border-white/5 relative overflow-hidden">
+    <section id="pillars" class="py-16 md:py-32 px-5 md:px-8 bg-gray-50 dark:bg-void border-b border-gray-200 dark:border-white/5 relative overflow-hidden transition-colors">
         <!-- Ambient Blue Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-3/4 h-[300px] md:h-[500px] bg-brandBlue/5 blur-[100px] md:blur-[150px] rounded-full pointer-events-none z-0"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-3/4 h-[300px] md:h-[500px] bg-brandBlue/10 dark:bg-brandBlue/5 blur-[100px] md:blur-[150px] rounded-full pointer-events-none z-0"></div>
         
         <div class="max-w-screen-2xl mx-auto relative z-10">
             <div class="mb-16 md:mb-24 gsap-reveal text-center">
                 <h2 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-tight mb-4 md:mb-6">Resolving <br><span class="text-brandBlue">Contradictions</span></h2>
-                <p class="font-mono text-base md:text-lg max-w-3xl mx-auto text-muted font-light">A brand promise means nothing if operations contradict it. Here is how we align our actions with the Dignity Manifesto.</p>
+                <p class="font-mono text-base md:text-lg max-w-3xl mx-auto text-gray-600 dark:text-muted font-light">A brand promise means nothing if operations contradict it. Here is how we align our actions with the Dignity Manifesto.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 
                 <!-- Pillar 1 -->
-                <div class="bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
-                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc pb-4">
+                <div class="bg-white dark:bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-all duration-500 shadow-sm dark:shadow-none gsap-reveal">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-gray-200 dark:border-zinc pb-4">
                         <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Proof Point</span>
                     </div>
-                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper">Soft Eligibility Checks</h4>
-                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light">
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-gray-900 dark:text-paper">Soft Eligibility Checks</h4>
+                    <p class="font-mono text-base text-gray-600 dark:text-muted mb-6 md:mb-8 font-light">
                         The "here is where you stand" moment must happen before the "please enter all your details" moment. We let users see which lenders are likely to approve them based on a soft pull that protects their CIBIL score.
                     </p>
-                    <div class="bg-void/50 p-5 rounded border border-white/5">
-                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
+                    <div class="bg-gray-50 dark:bg-void/50 p-5 rounded border border-gray-200 dark:border-white/5">
+                        <p class="font-mono text-sm text-gray-600 dark:text-muted italic font-light leading-relaxed">
                             "If a user learns she has a 70% match with two lenders before formally applying, she never has the surprise rejection experience. That is our moat."
                         </p>
                     </div>
                 </div>
 
                 <!-- Pillar 2 -->
-                <div class="receipt-bg p-8 md:p-10 zig-zag-bottom hover:-translate-y-2 transition-transform duration-500 gsap-reveal rounded-xl">
-                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc border-dashed pb-4">
+                <div class="receipt-bg light-receipt dark-receipt p-8 md:p-10 zig-zag-bottom hover:-translate-y-2 transition-all duration-500 gsap-reveal rounded-xl border-gray-300 dark:border-[#27272a] text-gray-900 dark:text-paper">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-gray-300 dark:border-zinc border-dashed pb-4">
                         <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Commitment</span>
-                        <span class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Accountability</span>
+                        <span class="font-mono text-[10px] text-gray-500 dark:text-muted tracking-[0.2em] uppercase">Accountability</span>
                     </div>
                     <h4 class="text-xl md:text-2xl font-bold mb-4 md:text-center">Closing the Response Gap</h4>
-                    <p class="font-mono text-base text-muted mb-6 md:mb-8 md:text-center font-light">
+                    <p class="font-mono text-base text-gray-600 dark:text-muted mb-6 md:mb-8 md:text-center font-light">
                         Silence on complaints is catastrophic. Public silence broadcasts that our promise of credit dignity ends the moment things get operationally inconvenient.
                     </p>
-                    <div class="font-mono text-sm mt-6 border-y border-zinc border-dashed py-6 md:text-center text-brandBlue font-medium">
+                    <div class="font-mono text-sm mt-6 border-y border-gray-300 dark:border-zinc border-dashed py-6 md:text-center text-brandBlue font-medium">
                         We commit to answering every user, regardless of their eligibility status. Dignity is not transactional.
                     </div>
                 </div>
 
                 <!-- Pillar 3 -->
-                <div class="bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
-                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc pb-4">
+                <div class="bg-white dark:bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-all duration-500 shadow-sm dark:shadow-none gsap-reveal">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-gray-200 dark:border-zinc pb-4">
                         <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Clarity</span>
                     </div>
-                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper">Removing the "Unbiased" Lie</h4>
-                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light">
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-gray-900 dark:text-paper">Removing the "Unbiased" Lie</h4>
+                    <p class="font-mono text-base text-gray-600 dark:text-muted mb-6 md:mb-8 font-light">
                         Transparency is right, but "unbiased" is a structural claim the aggregator model cannot support. We don't feign neutrality.
                     </p>
-                    <div class="bg-void/50 p-5 rounded border border-white/5">
+                    <div class="bg-gray-50 dark:bg-void/50 p-5 rounded border border-gray-200 dark:border-white/5">
                         <h5 class="font-mono text-[10px] text-brandBlue uppercase tracking-widest mb-2">Our Defensible Promise:</h5>
-                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
+                        <p class="font-mono text-sm text-gray-600 dark:text-muted italic font-light leading-relaxed">
                             "We show you your full picture." Honesty over marketing buzzwords.
                         </p>
                     </div>
                 </div>
 
-                <!-- Pillar 4 (Fatafatloans) -->
-                <div class="bg-cardLight p-8 md:p-10 rounded-xl border border-red-500/30 hover:-translate-y-2 transition-transform duration-500 gsap-reveal overflow-hidden relative">
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 md:w-64 md:h-64 bg-red-500/5 blur-[60px] rounded-full pointer-events-none"></div>
+                <!-- Pillar 4 -->
+                <div class="bg-red-50 dark:bg-cardLight p-8 md:p-10 rounded-xl border border-red-500/30 hover:-translate-y-2 transition-all duration-500 gsap-reveal overflow-hidden relative">
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 md:w-64 md:h-64 bg-red-500/10 dark:bg-red-500/5 blur-[60px] rounded-full pointer-events-none"></div>
                     <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-red-500/20 pb-4 relative z-10">
-                        <span class="font-mono text-[10px] text-red-500 tracking-[0.2em] uppercase">The Anti-Pattern</span>
-                        <span class="font-mono text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded hidden sm:inline-block">Urgent Action Required</span>
+                        <span class="font-mono text-[10px] text-red-600 dark:text-red-500 tracking-[0.2em] uppercase">The Anti-Pattern</span>
+                        <span class="font-mono text-[10px] bg-red-500/10 text-red-600 dark:text-red-500 px-2 py-1 rounded hidden sm:inline-block">Urgent Action Required</span>
                     </div>
-                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper relative z-10">Killing Fatafatloans</h4>
-                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light relative z-10">
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-gray-900 dark:text-paper relative z-10">Killing Fatafatloans</h4>
+                    <p class="font-mono text-base text-gray-700 dark:text-muted mb-6 md:mb-8 font-light relative z-10">
                         A brand resting on "informed decisions before you commit" cannot run a sub-brand marketing the opposite state of mind (urgency & desperation). 
                     </p>
-                    <div class="bg-[#070709]/80 p-5 rounded-lg border-l-2 border-red-500 relative z-10 backdrop-blur-sm">
-                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
-                            <strong class="text-paper font-medium">The Trust Grenade:</strong> Under one umbrella, urgency destroys the dignity promise. We ring-fence or eliminate predatory urgency tactics.
+                    <div class="bg-white/80 dark:bg-[#070709]/80 p-5 rounded-lg border-l-2 border-red-500 relative z-10 backdrop-blur-sm">
+                        <p class="font-mono text-sm text-gray-700 dark:text-muted italic font-light leading-relaxed">
+                            <strong class="text-gray-900 dark:text-paper font-medium">The Trust Grenade:</strong> Under one umbrella, urgency destroys the dignity promise. We ring-fence or eliminate predatory urgency tactics.
                         </p>
                     </div>
                 </div>
@@ -377,15 +360,15 @@
     </section>
 
     <!-- ENDING -->
-    <section class="py-24 md:py-40 px-5 md:px-8 bg-void border-t border-zinc overflow-hidden relative">
+    <section class="py-24 md:py-40 px-5 md:px-8 bg-gray-50 dark:bg-void overflow-hidden relative transition-colors">
         <div class="max-w-screen-xl mx-auto text-center relative z-10">
             <h2 class="font-mono text-brandBlue tracking-[0.4em] text-[10px] uppercase mb-6 md:mb-8 gsap-reveal">The Strategic Manifesto</h2>
-            <h3 class="text-4xl md:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-8 md:mb-12 leading-tight gsap-reveal">
-                People who deserve <br class="hidden md:block"> <span class="text-muted" style="-webkit-text-stroke: 1px #a1a1aa; color: transparent;">honest information.</span>
+            <h3 class="text-4xl md:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-8 md:mb-12 leading-tight text-gray-900 dark:text-paper gsap-reveal">
+                People who deserve <br class="hidden md:block"> <span class="text-gray-400 dark:text-muted" style="-webkit-text-stroke: 1px currentColor; color: transparent;">honest information.</span>
             </h3>
             
-            <p class="font-mono text-base md:text-lg text-muted max-w-3xl mx-auto mb-16 md:mb-24 leading-relaxed font-light gsap-reveal">
-                WeCredit is the brand that treats credit-uncertain Indians as people who deserve the truth about their financial standing—<strong class="text-paper font-normal border-b border-brandBlue pb-1">not as leads to be converted.</strong>
+            <p class="font-mono text-base md:text-lg text-gray-600 dark:text-muted max-w-3xl mx-auto mb-16 md:mb-24 leading-relaxed font-light gsap-reveal">
+                WeCredit is the brand that treats credit-uncertain Indians as people who deserve the truth about their financial standing—<strong class="text-gray-900 dark:text-paper font-normal border-b border-brandBlue pb-1">not as leads to be converted.</strong>
             </p>
 
             <div class="flex justify-center mt-8 md:mt-12 gsap-reveal">
@@ -396,20 +379,34 @@
         </div>
     </section>
 
-    <footer class="bg-void py-12 md:py-16 px-5 text-center border-t border-zinc relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc/10 font-mono text-[10rem] md:text-[15rem] font-bold select-none pointer-events-none">WC/26</div>
+    <footer class="bg-gray-100 dark:bg-void py-12 md:py-16 px-5 text-center border-t border-gray-200 dark:border-zinc relative overflow-hidden transition-colors">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-200 dark:text-zinc/10 font-mono text-[10rem] md:text-[15rem] font-bold select-none pointer-events-none">WC/26</div>
         
         <div class="relative z-10">
-            <div class="font-sans text-xl md:text-2xl font-bold tracking-tight mb-6 text-paper flex justify-center items-center gap-3">
+            <div class="font-sans text-xl md:text-2xl font-bold tracking-tight mb-6 text-gray-900 dark:text-paper flex justify-center items-center gap-3">
                 <div class="w-2 h-2 bg-brandBlue rounded-full"></div> WeCredit
             </div>
-            <p class="font-mono text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase text-muted">Brand Strategy Document &copy; 2026 // The Dignity Update</p>
+            <p class="font-mono text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase text-gray-500 dark:text-muted">Brand Strategy Document &copy; 2026 // The Dignity Update</p>
         </div>
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             gsap.registerPlugin(ScrollTrigger);
+
+            // Theme Toggle Logic
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            themeToggleBtn.addEventListener('click', function() {
+                // Toggle the 'dark' class on HTML element
+                document.documentElement.classList.toggle('dark');
+                
+                // Save preference in localStorage
+                if (document.documentElement.classList.contains('dark')) {
+                    localStorage.theme = 'dark';
+                } else {
+                    localStorage.theme = 'light';
+                }
+            });
 
             // 1. Lenis Smooth Scroll
             const lenis = new Lenis({
@@ -472,7 +469,8 @@
                 const buffer32 = new Uint32Array(idata.data.buffer);
                 const len = buffer32.length;
                 for (let i = 0; i < len; i++) {
-                    if (Math.random() < 0.5) { buffer32[i] = 0xffffffff; } 
+                    // Using black pixels for noise (works for both light/dark due to overlay/opacity)
+                    if (Math.random() < 0.5) { buffer32[i] = 0xff000000; } 
                 }
                 noiseData.push(idata);
             };
@@ -504,7 +502,7 @@
                 setup();
             });
 
-            // 4. GSAP Advanced Animations (Responsive distances)
+            // 4. GSAP Advanced Animations
             const tl = gsap.timeline({ delay: 0.2 });
             const heroY = window.innerWidth < 768 ? 20 : 40;
             
@@ -531,16 +529,6 @@
                     }
                 );
             });
-
-            gsap.utils.toArray('.mood-img-wrap img').forEach(img => {
-                gsap.to(img, {
-                    scale: 1.1,
-                    yPercent: 5,
-                    ease: "none",
-                    scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true }
-                });
-            });
-
         });
     </script>
 </body>
