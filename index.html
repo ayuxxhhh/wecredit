@@ -90,7 +90,7 @@
         /* Sleek Dark Receipt */
         .receipt-bg {
             border: 1px solid;
-            background-image: radial-gradient(currentColor 1px, transparent 1px);
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
             background-size: 12px 12px;
         }
         .zig-zag-bottom { position: relative; }
@@ -100,8 +100,8 @@
                         linear-gradient(45deg, transparent 33%, var(--bg-color) 33%, var(--bg-color) 66%, transparent 66%);
             background-size: 16px 16px;
         }
-        .light-receipt { --bg-color: #f3f4f6; }
-        .dark .dark-receipt { --bg-color: #121217; }
+        .light-receipt { --bg-color: #f3f4f6; background-color: var(--bg-color); --dot-color: rgba(0, 0, 0, 0.08); }
+        .dark .dark-receipt { --bg-color: #121217; background-color: var(--bg-color); --dot-color: rgba(255, 255, 255, 0.08); }
 
         /* Moodboard image styles */
         .mood-img-wrap {
