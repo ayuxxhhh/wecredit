@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeCredit | The Anti-Bank Playbook</title>
+    <title>WeCredit | The Credit Dignity Manifesto</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- GSAP & Lenis -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -18,54 +17,46 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Syne"', 'sans-serif'],
+                        sans: ['"Poppins"', 'sans-serif'],
                         mono: ['"Space Mono"', 'monospace'],
                     },
                     colors: {
                         void: '#070709',       /* Deepest Black */
+                        cardDark: '#121217',   /* Brighter for readability contrast */
+                        cardLight: '#18181c',  /* Slightly brighter card */
                         paper: '#f4f4f5',      /* Off-white */
-                        lime: '#00d4ff',       /* Electric Cyan */
-                        zinc: '#1f1f22',
-                        muted: '#8a8a93'
+                        brandBlue: '#3b82f6',  
+                        brandBlueDark: '#1d4ed8',
+                        zinc: '#27272a',
+                        muted: '#a1a1aa'       /* Brightened from 8a8a93 for readability */
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #070709; color: #f4f4f5; overflow-x: hidden; cursor: none; }
-        ::selection { background-color: rgba(0, 212, 255, 0.3); color: #f4f4f5; }
+        body { background-color: #070709; color: #f4f4f5; overflow-x: hidden; }
+        @media (pointer: fine) { body { cursor: none; } }
+        ::selection { background-color: rgba(59, 130, 246, 0.3); color: #f4f4f5; }
         
         /* Typography adjustments */
         p { line-height: 1.8; }
         
-        /* Subtle glowing borders instead of heavy zinc */
-        .glow-border { border: 1px solid rgba(0, 212, 255, 0.15); box-shadow: 0 0 20px rgba(0, 212, 255, 0.05); }
-        .glow-border:hover { border-color: rgba(0, 212, 255, 0.4); box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); transition: all 0.5s ease; }
+        /* Subtle glowing borders */
+        .glow-border { border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 0 20px rgba(59, 130, 246, 0.05); }
+        .glow-border:hover { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 30px rgba(59, 130, 246, 0.15); transition: all 0.5s ease; }
         
         /* Magnetic Cursor */
         .cursor-dot, .cursor-outline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
-            pointer-events: none;
-            mix-blend-mode: difference;
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%); border-radius: 50%;
+            z-index: 9999; pointer-events: none; mix-blend-mode: difference; display: none;
         }
-        .cursor-dot { width: 6px; height: 6px; background-color: #f4f4f5; }
-        .cursor-outline { 
-            width: 40px; height: 40px; 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s; 
+        @media (pointer: fine) {
+            .cursor-dot { display: block; width: 6px; height: 6px; background-color: #f4f4f5; }
+            .cursor-outline { display: block; width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.3); transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s; }
+            .cursor-hover .cursor-outline { width: 90px; height: 90px; background-color: #f4f4f5; border-color: transparent; }
+            .cursor-hover .cursor-dot { opacity: 0; }
         }
-        .cursor-hover .cursor-outline { 
-            width: 90px; height: 90px; 
-            background-color: #f4f4f5; 
-            border-color: transparent; 
-        }
-        .cursor-hover .cursor-dot { opacity: 0; }
 
         /* Subtle Noise Overlay */
         #noise-canvas {
@@ -73,7 +64,7 @@
             pointer-events: none; z-index: 9998; opacity: 0.015; mix-blend-mode: overlay;
         }
 
-        /* Lenis Smooth Scroll Recommended CSS */
+        /* Lenis Smooth Scroll */
         html.lenis, html.lenis body { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
         .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
@@ -81,47 +72,49 @@
         .lenis.lenis-smooth iframe { pointer-events: none; }
         
         /* Marquee Animation */
-        .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; border-top: 1px solid rgba(0, 212, 255, 0.2); border-bottom: 1px solid rgba(0, 212, 255, 0.2); }
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; border-top: 1px solid rgba(59, 130, 246, 0.2); border-bottom: 1px solid rgba(59, 130, 246, 0.2); }
         .marquee-content { display: inline-block; animation: marquee 25s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         
         /* Sleek Dark Receipt */
         .receipt-bg {
-            background-color: #0c0c0e;
+            background-color: #121217;
             color: #f4f4f5;
-            background-image: radial-gradient(#1f1f22 1px, transparent 1px);
+            background-image: radial-gradient(#27272a 1px, transparent 1px);
             background-size: 12px 12px;
-            border: 1px solid #1f1f22;
+            border: 1px solid #27272a;
         }
         .zig-zag-bottom { position: relative; }
         .zig-zag-bottom::after {
             content: ""; position: absolute; bottom: -8px; left: 0; right: 0; height: 8px;
-            background: linear-gradient(-45deg, transparent 33%, #0c0c0e 33%, #0c0c0e 66%, transparent 66%), linear-gradient(45deg, transparent 33%, #0c0c0e 33%, #0c0c0e 66%, transparent 66%);
+            background: linear-gradient(-45deg, transparent 33%, #121217 33%, #121217 66%, transparent 66%), linear-gradient(45deg, transparent 33%, #121217 33%, #121217 66%, transparent 66%);
             background-size: 16px 16px;
         }
 
         /* Moodboard image styles */
         .mood-img-wrap {
-            overflow: hidden; position: relative; border: 1px solid #1f1f22; border-radius: 4px;
+            overflow: hidden; position: relative; border: 1px solid #27272a; border-radius: 0.75rem;
         }
         .mood-img-wrap::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(7,7,9,0.9) 100%);
-            opacity: 0.6; transition: opacity 0.7s ease; pointer-events: none;
+            background: linear-gradient(180deg, transparent 40%, rgba(7,7,9,0.95) 100%);
+            opacity: 0.7; transition: opacity 0.7s ease; pointer-events: none;
         }
         .mood-img-wrap:hover::after { opacity: 1; }
         .mood-img-wrap img {
             transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease;
-            filter: grayscale(80%) contrast(1.1) brightness(0.8);
+            filter: grayscale(60%) contrast(1.1) brightness(0.8);
         }
         .mood-img-wrap:hover img {
             transform: scale(1.05); filter: grayscale(0%) contrast(1) brightness(1);
         }
         .mood-label {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; z-index: 10;
-            opacity: 0; transform: translateY(15px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; z-index: 10;
         }
-        .mood-img-wrap:hover .mood-label { opacity: 1; transform: translateY(0); }
+        @media (hover: hover) {
+            .mood-label { opacity: 0; transform: translateY(15px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+            .mood-img-wrap:hover .mood-label { opacity: 1; transform: translateY(0); }
+        }
         
         /* Text reveal mask */
         .text-mask { overflow: hidden; display: inline-block; line-height: 1.1; padding-bottom: 0.1em; }
@@ -136,38 +129,37 @@
     <canvas id="noise-canvas"></canvas>
 
     <nav class="fixed w-full top-0 z-50 bg-void/80 backdrop-blur-md border-b border-white/5">
-        <div class="max-w-screen-2xl mx-auto px-8 py-5 flex justify-between items-center">
-            <div class="font-sans text-xl font-bold tracking-tighter uppercase flex items-center gap-3">
-                <div class="w-3 h-3 bg-lime rounded-full shadow-[0_0_10px_#00d4ff]"></div>
+        <div class="max-w-screen-2xl mx-auto px-5 md:px-8 py-4 md:py-5 flex justify-between items-center">
+            <div class="font-sans text-lg md:text-xl font-bold tracking-tight flex items-center gap-3">
+                <div class="w-3 h-3 bg-brandBlue rounded-full shadow-[0_0_10px_#3b82f6]"></div>
                 WeCredit
             </div>
             <div class="hidden md:flex items-center gap-8">
-                <a href="#strategy" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Strategy</a>
-                <a href="#moodboard" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Moodboard</a>
-                <a href="#pillars" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Content</a>
+                <a href="#strategy" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Audience</a>
+                <a href="#moodboard" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Dignity</a>
+                <a href="#pillars" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-brandBlue transition-colors duration-300">Commitment</a>
             </div>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
-    <section class="pt-48 pb-24 px-8 relative overflow-hidden">
+    <section class="pt-32 md:pt-48 pb-16 md:pb-24 px-5 md:px-8 relative overflow-hidden">
         <div class="max-w-screen-2xl mx-auto hero-content relative z-10">
-            <div class="font-mono text-lime text-xs uppercase tracking-[0.3em] mb-10 flex items-center gap-4 hero-fade">
-                <span class="w-8 h-[1px] bg-lime inline-block opacity-50"></span>
-                The Anti-Bank Manifesto
+            <div class="font-mono text-brandBlue text-xs uppercase tracking-[0.3em] mb-6 md:mb-10 flex items-center gap-4 hero-fade">
+                <span class="w-8 h-[1px] bg-brandBlue inline-block opacity-50"></span>
+                The Credit Dignity Manifesto
             </div>
-            <h1 class="text-5xl md:text-[7.5rem] font-bold leading-[0.9] tracking-tighter uppercase mb-12">
-                <span class="text-mask"><span class="hero-text">Capital as</span></span><br>
-                <span class="text-mask"><span class="hero-text text-void" style="-webkit-text-stroke: 1px #f4f4f5;">Ammunition,</span></span><br>
-                <span class="text-mask"><span class="hero-text text-lime">Not an Anchor.</span></span>
+            <h1 class="text-5xl md:text-6xl lg:text-[6.5rem] font-bold leading-[1.05] tracking-tight mb-8 md:mb-12">
+                <span class="text-mask"><span class="hero-text">Honest Information.</span></span><br>
+                <span class="text-mask"><span class="hero-text text-brandBlue">Before You Apply.</span></span>
             </h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mt-24">
-                <p class="font-mono text-muted text-sm max-w-lg hero-fade font-light">
-                    Traditional lenders see ambition as a risk. Finfluencers lecture people to stop spending. WeCredit rejects both. Whether you're 22 or 52, if the system failed you, we fund you. We provide raw, un-neutered capital across generations—pricing risk honestly and aggressively punishing predatory lending norms.
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mt-12 md:mt-24">
+                <p class="font-mono text-muted text-base md:text-lg max-w-xl hero-fade font-light">
+                    The biggest thing standing between credit-uncertain Indians and a loan is not the interest rate. It's the fear of judgment. We treat our users as people who deserve honest information about where they stand—not as leads to be blindly converted.
                 </p>
-                <div class="flex flex-col justify-end items-start md:items-end hero-fade">
-                    <div class="glow-border px-6 py-4 inline-block bg-[#0c0c0e] text-paper font-mono uppercase text-xs tracking-widest rounded-sm transform md:rotate-2">
-                        <span class="text-lime mr-2">✦</span> Whitespace: Weaponized Transparency
+                <div class="flex flex-col justify-start md:justify-end items-start md:items-end hero-fade">
+                    <div class="glow-border px-5 py-3 md:px-6 md:py-4 inline-block bg-cardDark text-paper font-mono uppercase text-xs tracking-widest rounded-lg transform md:-rotate-2">
+                        <span class="text-brandBlue mr-2">✦</span> No Surprise Rejections
                     </div>
                 </div>
             </div>
@@ -175,60 +167,51 @@
     </section>
 
     <!-- MARQUEE -->
-    <div class="marquee-container relative z-20 bg-[#0c0c0e] text-lime py-4 font-mono text-xs uppercase tracking-[0.2em]">
+    <div class="marquee-container relative z-20 bg-cardDark text-brandBlue py-3 md:py-4 font-mono text-xs uppercase tracking-[0.2em]">
         <div class="marquee-content">
-            CIBIL IS A MYTH, UPI VELOCITY IS REALITY &nbsp;✦&nbsp; WE HATE HIDDEN FEES MORE THAN YOU DO &nbsp;✦&nbsp; BORROW TO BUILD, NOT TO FLEX &nbsp;✦&nbsp; CIBIL IS A MYTH, UPI VELOCITY IS REALITY &nbsp;✦&nbsp; WE HATE HIDDEN FEES MORE THAN YOU DO &nbsp;✦&nbsp; BORROW TO BUILD, NOT TO FLEX &nbsp;✦&nbsp; 
+            KNOW WHERE YOU STAND ✦ NO SURPRISE REJECTIONS ✦ SOFT ELIGIBILITY CHECKS FIRST ✦ CREDIT DIGNITY ✦ KNOW WHERE YOU STAND ✦ NO SURPRISE REJECTIONS ✦ SOFT ELIGIBILITY CHECKS FIRST ✦ CREDIT DIGNITY ✦
         </div>
     </div>
 
     <!-- STRATEGY SECTION -->
-    <section id="strategy" class="py-32 px-8 bg-void relative z-20">
+    <section id="strategy" class="py-16 md:py-32 px-5 md:px-8 bg-void relative z-20">
         <div class="max-w-screen-2xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16">
                 
                 <!-- Target Audience -->
                 <div class="lg:col-span-7 relative gsap-reveal">
-                    <div class="absolute -top-10 -left-10 text-zinc font-mono text-[12rem] font-bold opacity-10 select-none z-0">01</div>
+                    <div class="hidden lg:block absolute -top-10 -left-10 text-zinc font-mono text-[12rem] font-bold opacity-10 select-none z-0">01</div>
                     <div class="relative z-10">
-                        <h3 class="font-mono text-lime tracking-[0.2em] text-xs uppercase mb-8">Target Audience</h3>
-                        <h4 class="text-4xl md:text-5xl font-bold uppercase tracking-tight mb-8 leading-none">The "Credit Ghosts" <br><span class="text-muted font-normal">Across Generations</span></h4>
-                        <p class="text-muted font-mono text-sm mb-12 max-w-xl font-light">
-                            We are building for the invisible prime—across every age group. High ambition, real cash flow, but systematically ignored by the traditional banking system. From the 22-year-old dropshipper to the 48-year-old kirana owner, they share one trait: the system wasn't built for them.
+                        <h3 class="font-mono text-brandBlue tracking-[0.2em] text-xs uppercase mb-6 md:mb-8">Customer Profile</h3>
+                        <h4 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 leading-tight">Financially Invisible, <br><span class="text-muted font-normal">Not Illiterate.</span></h4>
+                        <p class="text-muted font-mono text-base md:text-lg mb-10 max-w-2xl font-light">
+                            Our real user is someone who has been made to feel like a bad bet by the formal banking system. Low CIBIL, informal income, first-generation urban. What they want is not just a loan. They want to know: am I even the kind of person who qualifies?
                         </p>
                         
-                        <div class="space-y-8 font-mono text-sm text-paper border-l border-zinc pl-8">
+                        <div class="space-y-8 font-mono text-base text-paper border-l border-zinc pl-6 md:pl-8">
                             <div class="group">
-                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The 45-Year-Old Kirana Owner</span>
-                                <span class="text-muted font-light">Running ₹3L/month through UPI, needs ₹80k to bulk-buy inventory before Diwali. His bank wants 3 months of ITR filings he doesn't have.</span>
+                                <span class="text-brandBlue block text-sm tracking-widest mb-2 uppercase opacity-80 group-hover:opacity-100 transition-opacity">The 29-Year-Old Executive</span>
+                                <span class="text-muted font-light leading-relaxed block">Works in a logistics firm in Pune, earning ₹28,000/month. Her income is real but irregular. Tried an app, got rejected after entering all details. Felt stupid. Never told anyone.</span>
                             </div>
                             <div class="group">
-                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The Micro-Fleet Operator (Age 38)</span>
-                                <span class="text-muted font-light">Owns 3 Rapido bikes. Needs instant cash flow to fix a broken engine so their rider doesn't lose a day of wages.</span>
-                            </div>
-                            <div class="group">
-                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The 22-Year-Old Arbitrager</span>
-                                <span class="text-muted font-light">The dropshipper who needs ₹40k of ad-spend capital on Friday to double their returns by Sunday. Zero CIBIL history.</span>
+                                <span class="text-brandBlue block text-sm tracking-widest mb-2 uppercase opacity-80 group-hover:opacity-100 transition-opacity">The First-Gen Urban Trader</span>
+                                <span class="text-muted font-light leading-relaxed block">Runs massive volume through UPI but lacks 3 years of audited ITRs. Left a bank branch feeling judged by an officer asking for documents he couldn't produce.</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Brand Tone -->
-                <div class="lg:col-span-5 flex flex-col justify-center gsap-reveal">
-                    <div class="bg-[#0c0c0e] rounded-sm p-10 glow-border">
-                        <h3 class="font-mono text-lime tracking-[0.2em] text-xs uppercase mb-6">Brand Persona</h3>
-                        <h4 class="text-3xl font-bold uppercase tracking-tight mb-6">The Anti-Finfluencer</h4>
-                        <p class="text-muted font-mono text-sm mb-8 font-light">
-                            We don't give condescending lectures about cutting out lattes. We speak in raw math, ROI, and blunt reality. We are highly protective of our users, brutally mocking predatory lenders, and acting as the financial bodyguard our users never had.
+                <div class="lg:col-span-5 flex flex-col justify-center gsap-reveal mt-8 lg:mt-0">
+                    <div class="bg-cardDark rounded-xl p-8 md:p-10 glow-border">
+                        <h3 class="font-mono text-brandBlue tracking-[0.2em] text-xs uppercase mb-4 md:mb-6">The Enemy</h3>
+                        <h4 class="text-2xl md:text-3xl font-bold tracking-tight mb-4 md:mb-6">"Credit is not for people like me."</h4>
+                        <p class="text-muted font-mono text-base mb-6 md:mb-8 font-light">
+                            Our combat is not against a specific corporate entity. It's against an internal systemic lie absorbed after years of rejection signals. We don't combat this by saying "everyone qualifies"—that's a lie. We combat it by delivering the truth upfront.
                         </p>
-                        <div class="border-t border-zinc/50 pt-6 font-mono text-[10px] text-lime uppercase tracking-[0.2em]">
-                            Rule: No "Jargon." No "Preaching." We act like a tactical API for the user's ambition.
+                        <div class="border-t border-zinc pt-6 font-mono text-xs text-brandBlue uppercase tracking-[0.2em]">
+                            Our Stance: Knowing where you stand is the first step, not a judgment.
                         </div>
-                    </div>
-                    
-                    <div class="mt-8 h-48 relative border border-zinc/30 rounded-sm p-6 overflow-hidden bg-[#070709]">
-                         <h5 class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase absolute top-4 left-4">Intent Data</h5>
-                         <canvas id="brutalistChart"></canvas>
                     </div>
                 </div>
 
@@ -237,98 +220,72 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- MOODBOARD SECTION -->
+    <!-- MOODBOARD SECTION (Compact Grid) -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <section id="moodboard" class="py-32 px-8 bg-[#0a0a0c] border-t border-zinc/20">
+    <section id="moodboard" class="py-16 md:py-32 px-5 md:px-8 bg-cardLight border-t border-zinc">
         <div class="max-w-screen-2xl mx-auto">
 
             <!-- Section Header -->
-            <div class="mb-24 gsap-reveal">
-                <div class="font-mono text-lime text-xs uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-                    <span class="w-8 h-[1px] bg-lime inline-block opacity-50"></span>
-                    Visual Intelligence
+            <div class="mb-12 md:mb-20 gsap-reveal">
+                <div class="font-mono text-brandBlue text-xs uppercase tracking-[0.3em] mb-4 md:mb-6 flex items-center gap-4">
+                    <span class="w-8 h-[1px] bg-brandBlue inline-block opacity-50"></span>
+                    Visual Proof Points
                 </div>
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
-                    <div>
-                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-6">Mood<span class="text-muted" style="-webkit-text-stroke: 1px #8a8a93; color: transparent;">board.</span></h2>
-                        <p class="font-mono text-muted text-sm max-w-xl font-light">Every visual asset below was generated to define WeCredit's visual language. Dark. Minimal. Unapologetically neon. No stock photography. No corporate blue.</p>
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 md:gap-12">
+                    <div class="max-w-3xl">
+                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-tight mb-4 md:mb-6">Visualizing <span class="text-muted" style="-webkit-text-stroke: 1px #a1a1aa; color: transparent;">Dignity.</span></h2>
+                        <p class="font-mono text-muted text-base md:text-lg font-light">Translating the abstract promise of "Dignity" into product and cultural realities. Dark mode. Mature. Transparent. Safe.</p>
                     </div>
-                    <div class="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-lime glow-border rounded-full">
-                        6 Assets Indexed
+                    <div class="px-4 py-2 md:px-5 md:py-3 font-mono text-xs uppercase tracking-[0.3em] text-brandBlue glow-border rounded-full inline-block">
+                        Compact Index
                     </div>
                 </div>
             </div>
 
-            <!-- Image Grids -->
-            <div class="space-y-32">
+            <!-- Compact Image Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 gsap-reveal">
                 
-                <!-- Category I -->
-                <div class="gsap-reveal">
-                    <div class="flex items-center gap-6 mb-10">
-                        <span class="font-mono text-[10px] text-lime border border-lime/30 px-3 py-1 rounded-full uppercase tracking-widest">Cat 01</span>
-                        <h3 class="text-lg font-bold uppercase tracking-widest text-paper">Product & Interface</h3>
-                        <span class="flex-1 h-[1px] bg-gradient-to-r from-zinc/50 to-transparent"></span>
+                <div class="mood-img-wrap aspect-square lg:col-span-2">
+                    <img src="assets/app-ui.png" alt="WeCredit Dashboard Interface" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">The Soft Check</span>
+                        <p class="font-mono text-paper text-xs mt-2 font-light hidden sm:block">Checking eligibility without hurting scores.</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="mood-img-wrap aspect-[16/10]">
-                            <img src="assets/app-ui.png" alt="WeCredit Brutalist App Interface" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">App Interface</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Dark-mode dashboard. Monospace data. Zero decoration.</p>
-                            </div>
-                        </div>
-                        <div class="mood-img-wrap aspect-[16/10]">
-                            <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Naked Receipt</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Open-source economics. Every rupee accounted for.</p>
-                            </div>
-                        </div>
+                </div>
+                
+                <div class="mood-img-wrap aspect-square">
+                    <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">The Full Picture</span>
+                    </div>
+                </div>
+                
+                <div class="mood-img-wrap aspect-square">
+                    <img src="assets/urban-hustle.png" alt="Urban Worker" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Forgotten Prime</span>
                     </div>
                 </div>
 
-                <!-- Category II -->
-                <div class="gsap-reveal">
-                    <div class="flex items-center gap-6 mb-10">
-                        <span class="font-mono text-[10px] text-lime border border-lime/30 px-3 py-1 rounded-full uppercase tracking-widest">Cat 02</span>
-                        <h3 class="text-lg font-bold uppercase tracking-widest text-paper">Culture & Identity</h3>
-                        <span class="flex-1 h-[1px] bg-gradient-to-r from-zinc/50 to-transparent"></span>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="mood-img-wrap aspect-[3/4]">
-                            <img src="assets/urban-hustle.png" alt="Gen-Z Urban Entrepreneur" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Ghost</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Invisible to banks. Visible to us.</p>
-                            </div>
-                        </div>
-                        <div class="mood-img-wrap aspect-[3/4]">
-                            <img src="assets/typography.png" alt="Brutalist Brand Typography" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">Type System</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Syne + Space Mono. Bold. Industrial.</p>
-                            </div>
-                        </div>
-                        <div class="mood-img-wrap aspect-[3/4]">
-                            <img src="assets/rebellion.png" alt="Anti-Bank Rebellion Collage" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">Anti-Establishment</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Deconstructed finance. Punk zine energy.</p>
-                            </div>
-                        </div>
+                <div class="mood-img-wrap aspect-video lg:col-span-2">
+                    <img src="assets/gig-workspace.png" alt="Informal Workspace" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Reality of Work</span>
+                        <p class="font-mono text-paper text-xs mt-2 font-light hidden sm:block">Nuanced cashflow of the modern Indian economy.</p>
                     </div>
                 </div>
-                
-                <!-- Category III -->
-                <div class="gsap-reveal">
-                    <div class="grid grid-cols-1 gap-8">
-                        <div class="mood-img-wrap aspect-[21/9]">
-                            <img src="assets/gig-workspace.png" alt="Gen-Z Freelancer Workspace" class="w-full h-full object-cover">
-                            <div class="mood-label">
-                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Hustle Desk</span>
-                                <p class="font-mono text-paper text-xs mt-2 font-light">Where ₹10k becomes ₹28k in 48 hours. No corner office required.</p>
-                            </div>
-                        </div>
+
+                <div class="mood-img-wrap aspect-square lg:aspect-video">
+                    <img src="assets/typography.png" alt="Brand Typography" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Type System</span>
+                    </div>
+                </div>
+
+                <div class="mood-img-wrap aspect-square lg:aspect-video">
+                    <img src="assets/rebellion.png" alt="Empowerment Collage" class="w-full h-full object-cover">
+                    <div class="mood-label">
+                        <span class="font-mono text-brandBlue text-[10px] uppercase tracking-[0.2em] bg-void/80 px-2 py-1 rounded">Displacing Fear</span>
                     </div>
                 </div>
 
@@ -336,162 +293,117 @@
         </div>
     </section>
 
-    <!-- CONTENT PILLARS -->
-    <section id="pillars" class="py-32 px-8 bg-void border-t border-white/5 relative">
-        <!-- Ambient Neon Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[500px] bg-lime/5 blur-[150px] rounded-full pointer-events-none z-0"></div>
+    <!-- CONTENT PILLARS / CONTRADICTIONS -->
+    <section id="pillars" class="py-16 md:py-32 px-5 md:px-8 bg-void border-t border-white/5 relative overflow-hidden">
+        <!-- Ambient Blue Glow -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-3/4 h-[300px] md:h-[500px] bg-brandBlue/5 blur-[100px] md:blur-[150px] rounded-full pointer-events-none z-0"></div>
         
         <div class="max-w-screen-2xl mx-auto relative z-10">
-            <div class="mb-24 gsap-reveal text-center">
-                <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-6">Un-hinged <br><span class="text-lime">Content Pillars</span></h2>
-                <p class="font-mono text-sm max-w-2xl mx-auto text-muted font-light">Content that actively breaks the fourth wall. We generate trust by doing exactly what banks are legally and culturally terrified of doing.</p>
+            <div class="mb-16 md:mb-24 gsap-reveal text-center">
+                <h2 class="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-tight mb-4 md:mb-6">Resolving <br><span class="text-brandBlue">Contradictions</span></h2>
+                <p class="font-mono text-base md:text-lg max-w-3xl mx-auto text-muted font-light">A brand promise means nothing if operations contradict it. Here is how we align our actions with the Dignity Manifesto.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 
                 <!-- Pillar 1 -->
-                <div class="bg-[#0a0a0c] p-10 rounded-sm glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
-                    <div class="flex justify-between items-start mb-10 border-b border-zinc/30 pb-4">
-                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 01</span>
+                <div class="bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc pb-4">
+                        <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Proof Point</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper">Unsolicited Interventions</h4>
-                    <p class="font-mono text-sm text-muted mb-8 font-light">
-                        We run ads celebrating when we <strong>block</strong> our users from making dumb financial decisions. We position our risk-algorithm as a feature, not a bug. 
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper">Soft Eligibility Checks</h4>
+                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light">
+                        The "here is where you stand" moment must happen before the "please enter all your details" moment. We let users see which lenders are likely to approve them based on a soft pull that protects their CIBIL score.
                     </p>
                     <div class="bg-void/50 p-5 rounded border border-white/5">
-                        <h5 class="font-mono text-[10px] text-lime uppercase tracking-widest mb-3">Execution (Reel):</h5>
-                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
-                            "We just blocked Rohit's ₹50,000 EMI attempt at a luxury watch store at 11 PM. Why? Because going into 24% debt to flex on Instagram is financially illiterate. WeCredit is for scaling your hustle, not your ego."
+                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
+                            "If a user learns she has a 70% match with two lenders before formally applying, she never has the surprise rejection experience. That is our moat."
                         </p>
                     </div>
                 </div>
 
                 <!-- Pillar 2 -->
-                <div class="receipt-bg p-10 zig-zag-bottom hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
-                    <div class="flex justify-between items-start mb-10 border-b border-zinc/50 border-dashed pb-4">
-                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 02</span>
-                        <span class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Open Source</span>
+                <div class="receipt-bg p-8 md:p-10 zig-zag-bottom hover:-translate-y-2 transition-transform duration-500 gsap-reveal rounded-xl">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc border-dashed pb-4">
+                        <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Commitment</span>
+                        <span class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Accountability</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-center">Open-Source Economics</h4>
-                    <p class="font-mono text-sm text-muted mb-8 text-center font-light">
-                        We literally publish our company P&L on social media. We show users exactly why we charge what we charge.
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 md:text-center">Closing the Response Gap</h4>
+                    <p class="font-mono text-base text-muted mb-6 md:mb-8 md:text-center font-light">
+                        Silence on complaints is catastrophic. Public silence broadcasts that our promise of credit dignity ends the moment things get operationally inconvenient.
                     </p>
-                    <div class="font-mono text-xs space-y-3 mt-6 border-y border-zinc/50 border-dashed py-6">
-                        <div class="flex justify-between text-muted"><span>User Default Rate:</span> <span class="text-paper">3.2%</span></div>
-                        <div class="flex justify-between text-muted"><span>Cloud/Tech Cost:</span> <span class="text-paper">₹14/user</span></div>
-                        <div class="flex justify-between text-lime"><span>Our Net Margin:</span> <span>4.1%</span></div>
+                    <div class="font-mono text-sm mt-6 border-y border-zinc border-dashed py-6 md:text-center text-brandBlue font-medium">
+                        We commit to answering every user, regardless of their eligibility status. Dignity is not transactional.
                     </div>
                 </div>
 
                 <!-- Pillar 3 -->
-                <div class="bg-[#0a0a0c] p-10 rounded-sm glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
-                    <div class="flex justify-between items-start mb-10 border-b border-zinc/30 pb-4">
-                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 03</span>
+                <div class="bg-cardDark p-8 md:p-10 rounded-xl glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-zinc pb-4">
+                        <span class="font-mono text-[10px] text-brandBlue tracking-[0.2em] uppercase">The Clarity</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper">The 48-Hour R.O.I</h4>
-                    <p class="font-mono text-sm text-muted mb-8 font-light">
-                        Micro-documentaries highlighting fast-paced capital deployment. Showing how entrepreneurs across age groups use our capital as a tactical weapon.
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper">Removing the "Unbiased" Lie</h4>
+                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light">
+                        Transparency is right, but "unbiased" is a structural claim the aggregator model cannot support. We don't feign neutrality.
                     </p>
                     <div class="bg-void/50 p-5 rounded border border-white/5">
-                        <h5 class="font-mono text-[10px] text-lime uppercase tracking-widest mb-3">Execution:</h5>
-                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
-                            Suresh, 47, borrows ₹60k for pre-Diwali kirana stock. Sells ₹1.8L in 10 days. Repays ₹60,900. Same principle. Different generation. Same WeCredit.
+                        <h5 class="font-mono text-[10px] text-brandBlue uppercase tracking-widest mb-2">Our Defensible Promise:</h5>
+                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
+                            "We show you your full picture." Honesty over marketing buzzwords.
                         </p>
                     </div>
                 </div>
 
-                <!-- Pillar 4 -->
-                <div class="bg-zinc/20 p-10 rounded-sm border border-lime/30 hover:-translate-y-2 transition-transform duration-500 gsap-reveal overflow-hidden relative">
-                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-lime/10 blur-[60px] rounded-full"></div>
-                    <div class="flex justify-between items-start mb-10 border-b border-lime/20 pb-4 relative z-10">
-                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 04</span>
-                        <span class="font-mono text-[10px] bg-lime/10 text-lime px-2 py-1 rounded">Cross-Generational</span>
+                <!-- Pillar 4 (Fatafatloans) -->
+                <div class="bg-cardLight p-8 md:p-10 rounded-xl border border-red-500/30 hover:-translate-y-2 transition-transform duration-500 gsap-reveal overflow-hidden relative">
+                    <div class="absolute -right-10 -bottom-10 w-48 h-48 md:w-64 md:h-64 bg-red-500/5 blur-[60px] rounded-full pointer-events-none"></div>
+                    <div class="flex justify-between items-start mb-6 md:mb-8 border-b border-red-500/20 pb-4 relative z-10">
+                        <span class="font-mono text-[10px] text-red-500 tracking-[0.2em] uppercase">The Anti-Pattern</span>
+                        <span class="font-mono text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded hidden sm:inline-block">Urgent Action Required</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper relative z-10">Algorithmic Nihilism & Trust</h4>
-                    <p class="font-mono text-sm text-muted mb-8 font-light relative z-10">
-                        For the younger cohort, we lean into internet culture and the "unhinged admin". For the 40+ base, we build trust through vernacular case studies and WhatsApp-native content. 
+                    <h4 class="text-xl md:text-2xl font-bold mb-4 text-paper relative z-10">Killing Fatafatloans</h4>
+                    <p class="font-mono text-base text-muted mb-6 md:mb-8 font-light relative z-10">
+                        A brand resting on "informed decisions before you commit" cannot run a sub-brand marketing the opposite state of mind (urgency & desperation). 
                     </p>
-                    <div class="bg-[#070709]/80 p-5 rounded border-l-2 border-lime relative z-10 backdrop-blur-sm">
-                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
-                            <strong>Track B (WhatsApp):</strong> 90-second voice-note from Ramesh, 46: "Main 3 bank gaya, sab ne mana kiya. WeCredit ne 4 minute mein ₹70k diya. Ab main unka kya karunga bank ka?"
+                    <div class="bg-[#070709]/80 p-5 rounded-lg border-l-2 border-red-500 relative z-10 backdrop-blur-sm">
+                        <p class="font-mono text-sm text-muted italic font-light leading-relaxed">
+                            <strong class="text-paper font-medium">The Trust Grenade:</strong> Under one umbrella, urgency destroys the dignity promise. We ring-fence or eliminate predatory urgency tactics.
                         </p>
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </section>
-
-    <!-- TACTICS -->
-    <section class="py-32 px-8 bg-[#0c0c0e] border-t border-zinc/20">
-        <div class="max-w-screen-2xl mx-auto">
-            <h2 class="font-mono text-lime tracking-[0.3em] text-xs uppercase mb-16 text-center gsap-reveal">Multi-Generational Tactics</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 font-mono">
-                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal">
-                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">👾</div>
-                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">Gamified Bounties (Under 30)</h4>
-                    <p class="text-muted text-xs leading-relaxed font-light">Young users ignore basic referrals. We frame growth as multiplayer missions. "Bounty: Get 3 friends to complete their first arbitrage. Reward: Zero-fee capital."</p>
-                </div>
-                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal delay-100">
-                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">📲</div>
-                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">WhatsApp Trust (40+)</h4>
-                    <p class="text-muted text-xs leading-relaxed font-light">Our core 40+ base lives on WhatsApp. We deploy vernacular voice-note testimonials and community group infiltration. A shopkeeper vouching in a trader group is worth 10k ads.</p>
-                </div>
-                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal delay-200">
-                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">🎭</div>
-                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">The Admin (Universal)</h4>
-                    <p class="text-muted text-xs leading-relaxed font-light">WeCredit is represented by a faceless, sharp "Admin". On Reels, they roast bad advice. On WhatsApp, they send blunt financial tips. One rebellious ally fighting the banks.</p>
-                </div>
             </div>
         </div>
     </section>
 
     <!-- ENDING -->
-    <section class="py-40 px-8 bg-void border-t border-zinc/20 overflow-hidden relative">
+    <section class="py-24 md:py-40 px-5 md:px-8 bg-void border-t border-zinc overflow-hidden relative">
         <div class="max-w-screen-xl mx-auto text-center relative z-10">
-            <h2 class="font-mono text-lime tracking-[0.4em] text-[10px] uppercase mb-8 gsap-reveal">The Ultimate Differentiator</h2>
-            <h3 class="text-5xl md:text-[6rem] font-bold uppercase tracking-tighter mb-12 leading-none gsap-reveal">
-                The Self-Destructing <br> <span class="text-muted" style="-webkit-text-stroke: 1px #8a8a93; color: transparent;">Credit Line.</span>
+            <h2 class="font-mono text-brandBlue tracking-[0.4em] text-[10px] uppercase mb-6 md:mb-8 gsap-reveal">The Strategic Manifesto</h2>
+            <h3 class="text-4xl md:text-6xl lg:text-[5.5rem] font-bold tracking-tight mb-8 md:mb-12 leading-tight gsap-reveal">
+                People who deserve <br class="hidden md:block"> <span class="text-muted" style="-webkit-text-stroke: 1px #a1a1aa; color: transparent;">honest information.</span>
             </h3>
             
-            <p class="font-mono text-base text-muted max-w-2xl mx-auto mb-24 leading-relaxed font-light gsap-reveal">
-                Legacy lenders trap you in a 10-year cycle of minimum payments. WeCredit differentiates by openly stating our goal: <strong class="text-paper font-normal border-b border-lime pb-1">We want to fire you as a customer.</strong> We use your micro-repayments to actively build your formal CIBIL score until you graduate to Prime Banking rates.
+            <p class="font-mono text-base md:text-lg text-muted max-w-3xl mx-auto mb-16 md:mb-24 leading-relaxed font-light gsap-reveal">
+                WeCredit is the brand that treats credit-uncertain Indians as people who deserve the truth about their financial standing—<strong class="text-paper font-normal border-b border-brandBlue pb-1">not as leads to be converted.</strong>
             </p>
 
-            <div class="flex flex-col md:flex-row items-stretch justify-center gap-6 font-mono text-sm max-w-4xl mx-auto">
-                <div class="border border-zinc/30 p-8 bg-[#0a0a0c] rounded flex-1 gsap-reveal text-left hover:border-lime/50 transition-colors">
-                    <span class="block text-lime text-xs tracking-widest mb-4">PHASE 1</span>
-                    <strong class="uppercase block mb-3 text-paper text-lg">Ghost to Known</strong>
-                    <span class="text-muted text-xs font-light leading-relaxed">We underwrite you based purely on UPI velocity. Instant micro-capital.</span>
-                </div>
-                
-                <div class="border border-zinc/30 p-8 bg-[#0a0a0c] rounded flex-1 gsap-reveal text-left hover:border-lime/50 transition-colors">
-                    <span class="block text-lime text-xs tracking-widest mb-4">PHASE 2</span>
-                    <strong class="uppercase block mb-3 text-paper text-lg">Score Farming</strong>
-                    <span class="text-muted text-xs font-light leading-relaxed">Every successful 48-hour ROI cycle builds your official CIBIL score in the background.</span>
-                </div>
-
-                <div class="border border-lime p-8 bg-lime/5 rounded flex-1 gsap-reveal text-left relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-lime transform -translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-                    <div class="relative z-10 group-hover:text-void transition-colors duration-500">
-                        <span class="block text-lime text-xs tracking-widest mb-4 group-hover:text-void opacity-80">PHASE 3</span>
-                        <strong class="uppercase block mb-3 text-paper text-lg group-hover:text-void">Graduation</strong>
-                        <span class="text-muted text-xs font-light leading-relaxed group-hover:text-void font-semibold">You hit 750 CIBIL. We lock your WeCredit account and give you a guide on how to get a 10% bank loan. You outgrew us.</span>
-                    </div>
-                </div>
+            <div class="flex justify-center mt-8 md:mt-12 gsap-reveal">
+                <a href="#" class="inline-flex items-center justify-center px-8 md:px-10 py-4 md:py-5 bg-brandBlue hover:bg-brandBlueDark text-white rounded-lg transition-all duration-300 font-medium font-sans text-sm md:text-base shadow-lg shadow-brandBlue/20">
+                    Experience WeCredit Dignity
+                </a>
             </div>
         </div>
     </section>
 
-    <footer class="bg-void py-16 text-center border-t border-zinc/20 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc/10 font-mono text-[15rem] font-bold select-none pointer-events-none">WC/26</div>
+    <footer class="bg-void py-12 md:py-16 px-5 text-center border-t border-zinc relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc/10 font-mono text-[10rem] md:text-[15rem] font-bold select-none pointer-events-none">WC/26</div>
         
         <div class="relative z-10">
-            <div class="font-sans text-2xl font-bold tracking-widest uppercase mb-6 text-paper flex justify-center items-center gap-3">
-                <div class="w-2 h-2 bg-lime rounded-full"></div> WECREDIT
+            <div class="font-sans text-xl md:text-2xl font-bold tracking-tight mb-6 text-paper flex justify-center items-center gap-3">
+                <div class="w-2 h-2 bg-brandBlue rounded-full"></div> WeCredit
             </div>
-            <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-muted">Brand Strategy Audit &copy; 2026 // Prepared in Mumbai, MH</p>
+            <p class="font-mono text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase text-muted">Brand Strategy Document &copy; 2026 // The Dignity Update</p>
         </div>
     </footer>
 
@@ -499,7 +411,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             gsap.registerPlugin(ScrollTrigger);
 
-            // 1. Lenis Smooth Scroll (Softened for Premium feel)
+            // 1. Lenis Smooth Scroll
             const lenis = new Lenis({
                 duration: 1.5,
                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -514,34 +426,38 @@
             gsap.ticker.add((time) => { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
 
-            // 2. Custom Magnetic Cursor
-            const cursorDot = document.querySelector('.cursor-dot');
-            const cursorOutline = document.querySelector('.cursor-outline');
-            let mouseX = window.innerWidth / 2;
-            let mouseY = window.innerHeight / 2;
-            let outlineX = mouseX;
-            let outlineY = mouseY;
+            // 2. Custom Magnetic Cursor - Only enable on devices with a fine pointer (mouse)
+            const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+            
+            if (!isTouchDevice) {
+                const cursorDot = document.querySelector('.cursor-dot');
+                const cursorOutline = document.querySelector('.cursor-outline');
+                let mouseX = window.innerWidth / 2;
+                let mouseY = window.innerHeight / 2;
+                let outlineX = mouseX;
+                let outlineY = mouseY;
 
-            window.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-                cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-            });
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+                });
 
-            const renderCursor = () => {
-                outlineX += (mouseX - outlineX) * 0.12;
-                outlineY += (mouseY - outlineY) * 0.12;
-                cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
-                requestAnimationFrame(renderCursor);
-            };
-            renderCursor();
+                const renderCursor = () => {
+                    outlineX += (mouseX - outlineX) * 0.12;
+                    outlineY += (mouseY - outlineY) * 0.12;
+                    cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
+                    requestAnimationFrame(renderCursor);
+                };
+                renderCursor();
 
-            // Hover state for interactive elements
-            const interactiveElements = document.querySelectorAll('a, button, .mood-img-wrap, .glow-border, .border-lime');
-            interactiveElements.forEach(el => {
-                el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-                el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-            });
+                // Hover state for interactive elements
+                const interactiveElements = document.querySelectorAll('a, button, .mood-img-wrap, .glow-border, .border-red-500');
+                interactiveElements.forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+                });
+            }
 
             // 3. Subtle WebGL/Canvas Noise Effect
             const canvas = document.getElementById('noise-canvas');
@@ -556,7 +472,7 @@
                 const buffer32 = new Uint32Array(idata.data.buffer);
                 const len = buffer32.length;
                 for (let i = 0; i < len; i++) {
-                    if (Math.random() < 0.5) { buffer32[i] = 0xffffffff; } // White noise mapped with blend-mode
+                    if (Math.random() < 0.5) { buffer32[i] = 0xffffffff; } 
                 }
                 noiseData.push(idata);
             };
@@ -588,73 +504,43 @@
                 setup();
             });
 
-            // 4. GSAP Advanced Animations (The WOW Factor)
-            
-            // Hero Text Mask Reveal
+            // 4. GSAP Advanced Animations (Responsive distances)
             const tl = gsap.timeline({ delay: 0.2 });
-            tl.to(".hero-text", { y: 0, duration: 1.4, ease: "power4.out", stagger: 0.15 })
-              .to(".hero-fade", { opacity: 1, y: 0, duration: 1.2, ease: "power2.out", stagger: 0.1 }, "-=1");
+            const heroY = window.innerWidth < 768 ? 20 : 40;
+            
+            tl.to(".hero-text", { y: 0, duration: 1.2, ease: "power4.out", stagger: 0.1 })
+              .to(".hero-fade", { opacity: 1, y: 0, duration: 1, ease: "power2.out", stagger: 0.1 }, "-=0.8");
 
-            // Setup initial states for hero fades
-            gsap.set(".hero-fade", { opacity: 0, y: 30 });
+            gsap.set(".hero-fade", { opacity: 0, y: heroY });
 
-            // Smooth ScrollTrigger Batching for the rest of the site
+            const revealY = window.innerWidth < 768 ? 30 : 60;
+            
             gsap.utils.toArray('.gsap-reveal').forEach((elem) => {
                 gsap.fromTo(elem, 
-                    { y: 60, opacity: 0 },
+                    { y: revealY, opacity: 0 },
                     { 
                         y: 0, 
                         opacity: 1, 
-                        duration: 1.2, 
+                        duration: 1, 
                         ease: "power3.out",
                         scrollTrigger: {
                             trigger: elem,
-                            start: "top 85%",
+                            start: "top 90%",
                             toggleActions: "play none none reverse"
                         }
                     }
                 );
             });
 
-            // Moodboard Image Parallax
             gsap.utils.toArray('.mood-img-wrap img').forEach(img => {
                 gsap.to(img, {
                     scale: 1.1,
-                    yPercent: 10,
+                    yPercent: 5,
                     ease: "none",
                     scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true }
                 });
             });
 
-            // Chart Initialization (Subdued for new aesthetics)
-            const ctxBrutalist = document.getElementById('brutalistChart');
-            if (ctxBrutalist) {
-                Chart.defaults.color = '#8a8a93';
-                Chart.defaults.font.family = '"Space Mono", monospace';
-                new Chart(ctxBrutalist, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Inventory', 'Payroll', 'Lifestyle', 'Medical'],
-                        datasets: [{
-                            label: 'Approval Rate %',
-                            data: [85, 90, 12, 75],
-                            backgroundColor: 'rgba(0, 212, 255, 0.8)',
-                            hoverBackgroundColor: '#00d4ff',
-                            borderWidth: 0,
-                            borderRadius: 2,
-                            barPercentage: 0.5,
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f1f22', titleFont: { size: 10 }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 4, displayColors: false } },
-                        scales: { 
-                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)', tickLength: 0 }, border: { display: false }, ticks: { font: { size: 9 } } }, 
-                            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#8a8a93' }, border: { display: false } } 
-                        }
-                    }
-                });
-            }
         });
     </script>
 </body>
