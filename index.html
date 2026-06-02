@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Using a technical sans and a brutalist monospace for the "receipt/audit" aesthetic -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- GSAP & Lenis -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -23,24 +22,28 @@
                         mono: ['"Space Mono"', 'monospace'],
                     },
                     colors: {
-                        void: '#09090b',       /* Pitch Black */
+                        void: '#070709',       /* Deepest Black */
                         paper: '#f4f4f5',      /* Off-white */
-                        lime: '#00d4ff',       /* High-visibility Neon Blue */
-                        zinc: '#27272a',
-                        muted: '#a1a1aa'
+                        lime: '#00d4ff',       /* Electric Cyan */
+                        zinc: '#1f1f22',
+                        muted: '#8a8a93'
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #09090b; color: #f4f4f5; overflow-x: hidden; cursor: none; }
-        ::selection { background-color: #00d4ff; color: #09090b; }
+        body { background-color: #070709; color: #f4f4f5; overflow-x: hidden; cursor: none; }
+        ::selection { background-color: rgba(0, 212, 255, 0.3); color: #f4f4f5; }
         
-        .brutal-border { border: 2px solid #27272a; }
-        .brutal-border-lime { border: 2px solid #00d4ff; }
+        /* Typography adjustments */
+        p { line-height: 1.8; }
         
-        /* Custom Cursor */
+        /* Subtle glowing borders instead of heavy zinc */
+        .glow-border { border: 1px solid rgba(0, 212, 255, 0.15); box-shadow: 0 0 20px rgba(0, 212, 255, 0.05); }
+        .glow-border:hover { border-color: rgba(0, 212, 255, 0.4); box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); transition: all 0.5s ease; }
+        
+        /* Magnetic Cursor */
         .cursor-dot, .cursor-outline {
             position: fixed;
             top: 0;
@@ -49,21 +52,25 @@
             border-radius: 50%;
             z-index: 9999;
             pointer-events: none;
+            mix-blend-mode: difference;
         }
-        .cursor-dot { width: 8px; height: 8px; background-color: #00d4ff; }
-        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(0, 212, 255, 0.5); transition: width 0.2s, height 0.2s; }
-        .cursor-hover .cursor-outline { width: 60px; height: 60px; background-color: rgba(0, 212, 255, 0.1); border-color: transparent; mix-blend-mode: difference; }
+        .cursor-dot { width: 6px; height: 6px; background-color: #f4f4f5; }
+        .cursor-outline { 
+            width: 40px; height: 40px; 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s; 
+        }
+        .cursor-hover .cursor-outline { 
+            width: 90px; height: 90px; 
+            background-color: #f4f4f5; 
+            border-color: transparent; 
+        }
+        .cursor-hover .cursor-dot { opacity: 0; }
 
-        /* Noise Overlay */
+        /* Subtle Noise Overlay */
         #noise-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9998;
-            opacity: 0.05;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9998; opacity: 0.015; mix-blend-mode: overlay;
         }
 
         /* Lenis Smooth Scroll Recommended CSS */
@@ -74,77 +81,51 @@
         .lenis.lenis-smooth iframe { pointer-events: none; }
         
         /* Marquee Animation */
-        .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; }
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-        }
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; border-top: 1px solid rgba(0, 212, 255, 0.2); border-bottom: 1px solid rgba(0, 212, 255, 0.2); }
+        .marquee-content { display: inline-block; animation: marquee 25s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         
-        /* Receipt Styling for Content Pillars */
+        /* Sleek Dark Receipt */
         .receipt-bg {
-            background-color: #f4f4f5;
-            color: #09090b;
-            background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
-            background-size: 10px 10px;
-            box-shadow: 8px 8px 0px #00d4ff;
+            background-color: #0c0c0e;
+            color: #f4f4f5;
+            background-image: radial-gradient(#1f1f22 1px, transparent 1px);
+            background-size: 12px 12px;
+            border: 1px solid #1f1f22;
         }
-        .zig-zag-bottom {
-            position: relative;
-        }
+        .zig-zag-bottom { position: relative; }
         .zig-zag-bottom::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: linear-gradient(-45deg, transparent 33%, #f4f4f5 33%, #f4f4f5 66%, transparent 66%), linear-gradient(45deg, transparent 33%, #f4f4f5 33%, #f4f4f5 66%, transparent 66%);
-            background-size: 20px 20px;
+            content: ""; position: absolute; bottom: -8px; left: 0; right: 0; height: 8px;
+            background: linear-gradient(-45deg, transparent 33%, #0c0c0e 33%, #0c0c0e 66%, transparent 66%), linear-gradient(45deg, transparent 33%, #0c0c0e 33%, #0c0c0e 66%, transparent 66%);
+            background-size: 16px 16px;
         }
-
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* Moodboard image styles */
         .mood-img-wrap {
-            overflow: hidden;
-            position: relative;
-            border: 2px solid #27272a;
+            overflow: hidden; position: relative; border: 1px solid #1f1f22; border-radius: 4px;
         }
         .mood-img-wrap::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 60%, rgba(9,9,11,0.7) 100%);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            pointer-events: none;
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(7,7,9,0.9) 100%);
+            opacity: 0.6; transition: opacity 0.7s ease; pointer-events: none;
         }
         .mood-img-wrap:hover::after { opacity: 1; }
         .mood-img-wrap img {
-            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
-            filter: grayscale(30%) contrast(1.1);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease;
+            filter: grayscale(80%) contrast(1.1) brightness(0.8);
         }
         .mood-img-wrap:hover img {
-            transform: scale(1.06);
-            filter: grayscale(0%) contrast(1);
+            transform: scale(1.05); filter: grayscale(0%) contrast(1) brightness(1);
         }
         .mood-label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 16px;
-            z-index: 10;
-            opacity: 0;
-            transform: translateY(8px);
-            transition: all 0.4s ease;
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; z-index: 10;
+            opacity: 0; transform: translateY(15px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .mood-img-wrap:hover .mood-label {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .mood-img-wrap:hover .mood-label { opacity: 1; transform: translateY(0); }
+        
+        /* Text reveal mask */
+        .text-mask { overflow: hidden; display: inline-block; line-height: 1.1; padding-bottom: 0.1em; }
+        .text-mask span { display: inline-block; transform: translateY(110%); }
     </style>
 </head>
 <body class="font-sans antialiased text-paper bg-void">
@@ -154,108 +135,100 @@
     <div class="cursor-outline"></div>
     <canvas id="noise-canvas"></canvas>
 
-    <nav class="fixed w-full top-0 z-50 bg-void/90 backdrop-blur-sm border-b-2 border-zinc">
-        <div class="max-w-screen-2xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="font-sans text-2xl font-bold tracking-tighter uppercase flex items-center gap-2">
-                <div class="w-4 h-4 bg-lime"></div>
+    <nav class="fixed w-full top-0 z-50 bg-void/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-screen-2xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="font-sans text-xl font-bold tracking-tighter uppercase flex items-center gap-3">
+                <div class="w-3 h-3 bg-lime rounded-full shadow-[0_0_10px_#00d4ff]"></div>
                 WeCredit
             </div>
-            <div class="hidden md:flex items-center gap-6">
-                <a href="#strategy" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Strategy</a>
-                <a href="#moodboard" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Moodboard</a>
-                <a href="#pillars" class="font-mono text-xs uppercase tracking-widest text-muted hover:text-lime transition-colors">Content</a>
-                <span class="font-mono text-xs uppercase tracking-widest text-zinc">Vol. 1</span>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#strategy" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Strategy</a>
+                <a href="#moodboard" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Moodboard</a>
+                <a href="#pillars" class="font-mono text-xs uppercase tracking-[0.2em] text-muted hover:text-lime transition-colors duration-300">Content</a>
             </div>
         </div>
     </nav>
 
-    <section class="pt-32 pb-16 px-6 relative border-b-2 border-zinc">
-        <div class="max-w-screen-2xl mx-auto">
-            <div class="font-mono text-lime text-sm uppercase tracking-widest mb-6 flex items-center gap-4 reveal">
-                <span class="w-12 h-[1px] bg-lime inline-block"></span>
+    <!-- HERO SECTION -->
+    <section class="pt-48 pb-24 px-8 relative overflow-hidden">
+        <div class="max-w-screen-2xl mx-auto hero-content relative z-10">
+            <div class="font-mono text-lime text-xs uppercase tracking-[0.3em] mb-10 flex items-center gap-4 hero-fade">
+                <span class="w-8 h-[1px] bg-lime inline-block opacity-50"></span>
                 The Anti-Bank Manifesto
             </div>
-            <h1 class="text-6xl md:text-[8rem] font-bold leading-[0.9] tracking-tighter uppercase mb-8 reveal">
-                Capital as <br>
-                <span class="text-void" style="-webkit-text-stroke: 2px #f4f4f5;">Ammunition,</span><br>
-                Not an Anchor.
+            <h1 class="text-5xl md:text-[7.5rem] font-bold leading-[0.9] tracking-tighter uppercase mb-12">
+                <span class="text-mask"><span class="hero-text">Capital as</span></span><br>
+                <span class="text-mask"><span class="hero-text text-void" style="-webkit-text-stroke: 1px #f4f4f5;">Ammunition,</span></span><br>
+                <span class="text-mask"><span class="hero-text text-lime">Not an Anchor.</span></span>
             </h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-16 reveal">
-                <p class="font-mono text-muted text-sm leading-relaxed max-w-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mt-24">
+                <p class="font-mono text-muted text-sm max-w-lg hero-fade font-light">
                     Traditional lenders see ambition as a risk. Finfluencers lecture people to stop spending. WeCredit rejects both. Whether you're 22 or 52, if the system failed you, we fund you. We provide raw, un-neutered capital across generations—pricing risk honestly and aggressively punishing predatory lending norms.
                 </p>
-                <div class="flex flex-col justify-end">
-                    <div class="brutal-border-lime p-4 inline-block bg-lime text-void font-bold uppercase text-xl max-w-max transform rotate-2">
-                        Whitespace: Weaponized Transparency.
+                <div class="flex flex-col justify-end items-start md:items-end hero-fade">
+                    <div class="glow-border px-6 py-4 inline-block bg-[#0c0c0e] text-paper font-mono uppercase text-xs tracking-widest rounded-sm transform md:rotate-2">
+                        <span class="text-lime mr-2">✦</span> Whitespace: Weaponized Transparency
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="marquee-container relative z-20 bg-lime text-void py-3 border-b-2 border-zinc font-mono text-sm uppercase font-bold tracking-widest">
+    <!-- MARQUEE -->
+    <div class="marquee-container relative z-20 bg-[#0c0c0e] text-lime py-4 font-mono text-xs uppercase tracking-[0.2em]">
         <div class="marquee-content">
-            CIBIL IS A MYTH, UPI VELOCITY IS REALITY • WE HATE HIDDEN FEES MORE THAN YOU DO • BORROW TO BUILD, NOT TO FLEX • CIBIL IS A MYTH, UPI VELOCITY IS REALITY • WE HATE HIDDEN FEES MORE THAN YOU DO • BORROW TO BUILD, NOT TO FLEX • 
+            CIBIL IS A MYTH, UPI VELOCITY IS REALITY &nbsp;✦&nbsp; WE HATE HIDDEN FEES MORE THAN YOU DO &nbsp;✦&nbsp; BORROW TO BUILD, NOT TO FLEX &nbsp;✦&nbsp; CIBIL IS A MYTH, UPI VELOCITY IS REALITY &nbsp;✦&nbsp; WE HATE HIDDEN FEES MORE THAN YOU DO &nbsp;✦&nbsp; BORROW TO BUILD, NOT TO FLEX &nbsp;✦&nbsp; 
         </div>
     </div>
 
-    <section id="strategy" class="py-24 px-6 border-b-2 border-zinc bg-void relative z-20">
+    <!-- STRATEGY SECTION -->
+    <section id="strategy" class="py-32 px-8 bg-void relative z-20">
         <div class="max-w-screen-2xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 border-2 border-zinc reveal">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
                 
                 <!-- Target Audience -->
-                <div class="lg:col-span-7 p-8 md:p-12 border-b-2 lg:border-b-0 lg:border-r-2 border-zinc bg-void relative overflow-hidden">
-                    <div class="absolute top-4 right-4 text-zinc font-mono text-9xl opacity-20 select-none">01</div>
-                    <h3 class="font-mono text-lime tracking-widest text-xs uppercase mb-6">Target Audience</h3>
-                    <h4 class="text-4xl font-bold uppercase tracking-tight mb-6">The "Credit Ghosts" Across Generations</h4>
-                    <p class="text-muted font-mono text-sm leading-relaxed mb-6">
-                        We are building for the invisible prime—across every age group. High ambition, real cash flow, but systematically ignored by the traditional banking system. From the 22-year-old dropshipper to the 48-year-old kirana owner, they share one trait: the system wasn't built for them.
-                    </p>
-                    <ul class="space-y-4 font-mono text-sm text-paper">
-                        <li class="flex items-start gap-3">
-                            <span class="text-lime">→</span> 
-                            <span><strong>The 45-Year-Old Kirana Owner:</strong> Running ₹3L/month through UPI, needs ₹80k to bulk-buy inventory before Diwali. His bank wants 3 months of ITR filings he doesn't have.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-lime">→</span> 
-                            <span><strong>The Micro-Fleet Operator (Age 38):</strong> Owns 3 Rapido bikes. Needs instant cash flow to fix a broken engine so their rider doesn't lose a day of wages.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-lime">→</span> 
-                            <span><strong>The 22-Year-Old Arbitrager:</strong> The dropshipper who needs ₹40k of ad-spend capital on Friday to double their returns by Sunday. Zero CIBIL history.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-lime">→</span> 
-                            <span><strong>The 52-Year-Old Contractor:</strong> Retired from corporate, now running a painting/renovation crew. Needs ₹1.5L bridge capital between project milestones. Banks see "retired" and close the door.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="text-lime">→</span> 
-                            <span><strong>The Event Hustler (Age 30):</strong> Freelance wedding manager who needs ₹50k deposit for camera lenses today, getting paid ₹1L next week.</span>
-                        </li>
-                    </ul>
-                    <p class="mt-6 text-muted font-mono text-sm border-l-2 border-lime pl-4 italic">
-                        Banks look at missing paperwork and reject them—regardless of age. We look at their ₹2 Lakh monthly UPI velocity and fund them in 3 minutes.
-                    </p>
+                <div class="lg:col-span-7 relative gsap-reveal">
+                    <div class="absolute -top-10 -left-10 text-zinc font-mono text-[12rem] font-bold opacity-10 select-none z-0">01</div>
+                    <div class="relative z-10">
+                        <h3 class="font-mono text-lime tracking-[0.2em] text-xs uppercase mb-8">Target Audience</h3>
+                        <h4 class="text-4xl md:text-5xl font-bold uppercase tracking-tight mb-8 leading-none">The "Credit Ghosts" <br><span class="text-muted font-normal">Across Generations</span></h4>
+                        <p class="text-muted font-mono text-sm mb-12 max-w-xl font-light">
+                            We are building for the invisible prime—across every age group. High ambition, real cash flow, but systematically ignored by the traditional banking system. From the 22-year-old dropshipper to the 48-year-old kirana owner, they share one trait: the system wasn't built for them.
+                        </p>
+                        
+                        <div class="space-y-8 font-mono text-sm text-paper border-l border-zinc pl-8">
+                            <div class="group">
+                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The 45-Year-Old Kirana Owner</span>
+                                <span class="text-muted font-light">Running ₹3L/month through UPI, needs ₹80k to bulk-buy inventory before Diwali. His bank wants 3 months of ITR filings he doesn't have.</span>
+                            </div>
+                            <div class="group">
+                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The Micro-Fleet Operator (Age 38)</span>
+                                <span class="text-muted font-light">Owns 3 Rapido bikes. Needs instant cash flow to fix a broken engine so their rider doesn't lose a day of wages.</span>
+                            </div>
+                            <div class="group">
+                                <span class="text-lime block text-xs tracking-widest mb-1 uppercase opacity-70 group-hover:opacity-100 transition-opacity">The 22-Year-Old Arbitrager</span>
+                                <span class="text-muted font-light">The dropshipper who needs ₹40k of ad-spend capital on Friday to double their returns by Sunday. Zero CIBIL history.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Brand Tone -->
-                <div class="lg:col-span-5 flex flex-col">
-                    <div class="p-8 md:p-12 border-b-2 border-zinc h-full bg-[#111113]">
-                        <h3 class="font-mono text-lime tracking-widest text-xs uppercase mb-6">Brand Persona & Tone</h3>
-                        <h4 class="text-3xl font-bold uppercase tracking-tight mb-4">The Anti-Finfluencer</h4>
-                        <p class="text-muted font-mono text-sm leading-relaxed mb-6">
+                <div class="lg:col-span-5 flex flex-col justify-center gsap-reveal">
+                    <div class="bg-[#0c0c0e] rounded-sm p-10 glow-border">
+                        <h3 class="font-mono text-lime tracking-[0.2em] text-xs uppercase mb-6">Brand Persona</h3>
+                        <h4 class="text-3xl font-bold uppercase tracking-tight mb-6">The Anti-Finfluencer</h4>
+                        <p class="text-muted font-mono text-sm mb-8 font-light">
                             We don't give condescending lectures about cutting out lattes. We speak in raw math, ROI, and blunt reality. We are highly protective of our users, brutally mocking predatory lenders, and acting as the financial bodyguard our users never had.
                         </p>
-                        <div class="bg-zinc p-4 font-mono text-xs text-paper uppercase tracking-wider">
+                        <div class="border-t border-zinc/50 pt-6 font-mono text-[10px] text-lime uppercase tracking-[0.2em]">
                             Rule: No "Jargon." No "Preaching." We act like a tactical API for the user's ambition.
                         </div>
                     </div>
-                    <div class="p-8 h-64 flex items-center justify-center relative bg-void">
-                        <!-- Brutalist Chart Placeholder -->
-                        <div class="absolute inset-0 p-6">
-                             <h5 class="font-mono text-xs text-muted uppercase absolute top-4 left-4">Data Point: Loan Rejection vs Approval by Intent</h5>
-                             <canvas id="brutalistChart"></canvas>
-                        </div>
+                    
+                    <div class="mt-8 h-48 relative border border-zinc/30 rounded-sm p-6 overflow-hidden bg-[#070709]">
+                         <h5 class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase absolute top-4 left-4">Intent Data</h5>
+                         <canvas id="brutalistChart"></canvas>
                     </div>
                 </div>
 
@@ -266,227 +239,181 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- MOODBOARD SECTION -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <section id="moodboard" class="py-24 px-6 border-b-2 border-zinc bg-[#0d0d0f]">
+    <section id="moodboard" class="py-32 px-8 bg-[#0a0a0c] border-t border-zinc/20">
         <div class="max-w-screen-2xl mx-auto">
 
             <!-- Section Header -->
-            <div class="mb-16 reveal">
-                <div class="font-mono text-lime text-sm uppercase tracking-widest mb-6 flex items-center gap-4">
-                    <span class="w-12 h-[1px] bg-lime inline-block"></span>
+            <div class="mb-24 gsap-reveal">
+                <div class="font-mono text-lime text-xs uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
+                    <span class="w-8 h-[1px] bg-lime inline-block opacity-50"></span>
                     Visual Intelligence
                 </div>
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
                     <div>
-                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-4">Mood<span style="-webkit-text-stroke: 2px #f4f4f5; color: transparent;">board.</span></h2>
-                        <p class="font-mono text-muted text-sm max-w-lg leading-relaxed">Every visual asset below was generated to define WeCredit's visual language. Dark. Brutal. Unapologetically neon. No stock photography. No corporate blue.</p>
+                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-6">Mood<span class="text-muted" style="-webkit-text-stroke: 1px #8a8a93; color: transparent;">board.</span></h2>
+                        <p class="font-mono text-muted text-sm max-w-xl font-light">Every visual asset below was generated to define WeCredit's visual language. Dark. Minimal. Unapologetically neon. No stock photography. No corporate blue.</p>
                     </div>
-                    <div class="brutal-border-lime px-4 py-2 font-mono text-xs uppercase tracking-widest text-lime bg-void">
-                        6 Assets / 3 Categories
-                    </div>
-                </div>
-            </div>
-
-            <!-- Category I: Product & Interface -->
-            <div class="mb-16 reveal">
-                <div class="flex items-center gap-4 mb-8">
-                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 01</span>
-                    <h3 class="text-xl font-bold uppercase tracking-tight">Product & Interface</h3>
-                    <span class="flex-1 h-[1px] bg-zinc"></span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="mood-img-wrap aspect-[4/3]">
-                        <img src="assets/app-ui.png" alt="WeCredit Brutalist App Interface" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">App Interface</span>
-                            <p class="text-paper text-xs mt-1">Dark-mode dashboard. Monospace data. Zero decoration.</p>
-                        </div>
-                    </div>
-                    <div class="mood-img-wrap aspect-[4/3]">
-                        <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">The Naked Receipt</span>
-                            <p class="text-paper text-xs mt-1">Open-source economics. Every rupee accounted for.</p>
-                        </div>
+                    <div class="px-5 py-3 font-mono text-[10px] uppercase tracking-[0.3em] text-lime glow-border rounded-full">
+                        6 Assets Indexed
                     </div>
                 </div>
             </div>
 
-            <!-- Category II: Culture & Identity -->
-            <div class="mb-16 reveal">
-                <div class="flex items-center gap-4 mb-8">
-                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 02</span>
-                    <h3 class="text-xl font-bold uppercase tracking-tight">Culture & Identity</h3>
-                    <span class="flex-1 h-[1px] bg-zinc"></span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
-                        <img src="assets/urban-hustle.png" alt="Gen-Z Urban Entrepreneur" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">The Credit Ghost</span>
-                            <p class="text-paper text-xs mt-1">Invisible to banks. Visible to us.</p>
-                        </div>
+            <!-- Image Grids -->
+            <div class="space-y-32">
+                
+                <!-- Category I -->
+                <div class="gsap-reveal">
+                    <div class="flex items-center gap-6 mb-10">
+                        <span class="font-mono text-[10px] text-lime border border-lime/30 px-3 py-1 rounded-full uppercase tracking-widest">Cat 01</span>
+                        <h3 class="text-lg font-bold uppercase tracking-widest text-paper">Product & Interface</h3>
+                        <span class="flex-1 h-[1px] bg-gradient-to-r from-zinc/50 to-transparent"></span>
                     </div>
-                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
-                        <img src="assets/typography.png" alt="Brutalist Brand Typography" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">Type System</span>
-                            <p class="text-paper text-xs mt-1">Syne + Space Mono. Bold. Industrial.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="mood-img-wrap aspect-[16/10]">
+                            <img src="assets/app-ui.png" alt="WeCredit Brutalist App Interface" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">App Interface</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Dark-mode dashboard. Monospace data. Zero decoration.</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mood-img-wrap aspect-[3/4] md:col-span-1">
-                        <img src="assets/rebellion.png" alt="Anti-Bank Rebellion Collage" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">Anti-Establishment</span>
-                            <p class="text-paper text-xs mt-1">Deconstructed finance. Punk zine energy.</p>
+                        <div class="mood-img-wrap aspect-[16/10]">
+                            <img src="assets/data-receipt.png" alt="Financial Transparency Receipt" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Naked Receipt</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Open-source economics. Every rupee accounted for.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Category III: Raw Aesthetics -->
-            <div class="reveal">
-                <div class="flex items-center gap-4 mb-8">
-                    <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Category 03</span>
-                    <h3 class="text-xl font-bold uppercase tracking-tight">Raw Aesthetics</h3>
-                    <span class="flex-1 h-[1px] bg-zinc"></span>
-                </div>
-                <div class="grid grid-cols-1 gap-6">
-                    <div class="mood-img-wrap aspect-[21/9]">
-                        <img src="assets/gig-workspace.png" alt="Gen-Z Freelancer Workspace" class="w-full h-full object-cover">
-                        <div class="mood-label font-mono">
-                            <span class="text-lime text-[10px] uppercase tracking-widest">The Hustle Desk</span>
-                            <p class="text-paper text-xs mt-1">Where ₹10k becomes ₹28k in 48 hours. No corner office required.</p>
+                <!-- Category II -->
+                <div class="gsap-reveal">
+                    <div class="flex items-center gap-6 mb-10">
+                        <span class="font-mono text-[10px] text-lime border border-lime/30 px-3 py-1 rounded-full uppercase tracking-widest">Cat 02</span>
+                        <h3 class="text-lg font-bold uppercase tracking-widest text-paper">Culture & Identity</h3>
+                        <span class="flex-1 h-[1px] bg-gradient-to-r from-zinc/50 to-transparent"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="mood-img-wrap aspect-[3/4]">
+                            <img src="assets/urban-hustle.png" alt="Gen-Z Urban Entrepreneur" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Ghost</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Invisible to banks. Visible to us.</p>
+                            </div>
+                        </div>
+                        <div class="mood-img-wrap aspect-[3/4]">
+                            <img src="assets/typography.png" alt="Brutalist Brand Typography" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">Type System</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Syne + Space Mono. Bold. Industrial.</p>
+                            </div>
+                        </div>
+                        <div class="mood-img-wrap aspect-[3/4]">
+                            <img src="assets/rebellion.png" alt="Anti-Bank Rebellion Collage" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">Anti-Establishment</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Deconstructed finance. Punk zine energy.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Color Palette Strip -->
-            <div class="mt-16 brutal-border p-6 reveal">
-                <h4 class="font-mono text-xs uppercase tracking-widest text-muted mb-6">Brand Color System</h4>
-                <div class="flex flex-wrap gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-void border-2 border-zinc"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Void</span><span class="text-muted">#09090b</span></div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-lime"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Neon Blue</span><span class="text-muted">#00d4ff</span></div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-paper"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Paper</span><span class="text-muted">#f4f4f5</span></div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-zinc"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Zinc</span><span class="text-muted">#27272a</span></div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-muted"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Muted</span><span class="text-muted">#a1a1aa</span></div>
+                
+                <!-- Category III -->
+                <div class="gsap-reveal">
+                    <div class="grid grid-cols-1 gap-8">
+                        <div class="mood-img-wrap aspect-[21/9]">
+                            <img src="assets/gig-workspace.png" alt="Gen-Z Freelancer Workspace" class="w-full h-full object-cover">
+                            <div class="mood-label">
+                                <span class="font-mono text-lime text-[10px] uppercase tracking-[0.2em]">The Hustle Desk</span>
+                                <p class="font-mono text-paper text-xs mt-2 font-light">Where ₹10k becomes ₹28k in 48 hours. No corner office required.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-6 flex flex-wrap gap-4">
-                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Font: Syne (Headings)</div>
-                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Font: Space Mono (Body/Data)</div>
-                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Borders: 2px Solid</div>
-                    <div class="font-mono text-xs text-muted border border-zinc px-3 py-2">Radius: 0px (Always)</div>
-                </div>
-            </div>
 
+            </div>
         </div>
     </section>
 
-    <section id="pillars" class="py-24 px-6 bg-lime text-void">
-        <div class="max-w-screen-2xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
-                <div>
-                    <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-4">Un-hinged <br>Content Pillars</h2>
-                    <p class="font-mono text-sm max-w-xl font-bold">Content that actively breaks the fourth wall. We generate trust by doing exactly what banks are legally and culturally terrified of doing.</p>
-                </div>
+    <!-- CONTENT PILLARS -->
+    <section id="pillars" class="py-32 px-8 bg-void border-t border-white/5 relative">
+        <!-- Ambient Neon Glow -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[500px] bg-lime/5 blur-[150px] rounded-full pointer-events-none z-0"></div>
+        
+        <div class="max-w-screen-2xl mx-auto relative z-10">
+            <div class="mb-24 gsap-reveal text-center">
+                <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-6">Un-hinged <br><span class="text-lime">Content Pillars</span></h2>
+                <p class="font-mono text-sm max-w-2xl mx-auto text-muted font-light">Content that actively breaks the fourth wall. We generate trust by doing exactly what banks are legally and culturally terrified of doing.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                 
-                <!-- Pillar 1: The Anti-Ad -->
-                <div class="brutal-border p-8 bg-paper reveal hover:bg-white transition-colors">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="font-mono text-xs bg-void text-lime px-2 py-1 uppercase">Pillar 01</span>
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <!-- Pillar 1 -->
+                <div class="bg-[#0a0a0c] p-10 rounded-sm glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
+                    <div class="flex justify-between items-start mb-10 border-b border-zinc/30 pb-4">
+                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 01</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4">Unsolicited Interventions</h4>
-                    <p class="font-mono text-sm text-zinc mb-6 leading-relaxed">
+                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper">Unsolicited Interventions</h4>
+                    <p class="font-mono text-sm text-muted mb-8 font-light">
                         We run ads celebrating when we <strong>block</strong> our users from making dumb financial decisions. We position our risk-algorithm as a feature, not a bug. 
                     </p>
-                    <div class="border-t-2 border-void pt-4">
-                        <h5 class="font-bold text-xs uppercase tracking-widest mb-2">Execution (Reel):</h5>
-                        <p class="font-mono text-xs bg-zinc/10 p-3 italic">
-                            POV Screen recording of the WeCredit app: "We just blocked Rohit's ₹50,000 EMI attempt at a luxury watch store at 11 PM. Why? Because going into 24% debt to flex on Instagram is financially illiterate. WeCredit is for scaling your hustle, not your ego. Transaction Denied. You're welcome, Rohit."
+                    <div class="bg-void/50 p-5 rounded border border-white/5">
+                        <h5 class="font-mono text-[10px] text-lime uppercase tracking-widest mb-3">Execution (Reel):</h5>
+                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
+                            "We just blocked Rohit's ₹50,000 EMI attempt at a luxury watch store at 11 PM. Why? Because going into 24% debt to flex on Instagram is financially illiterate. WeCredit is for scaling your hustle, not your ego."
                         </p>
                     </div>
                 </div>
 
-                <!-- Pillar 2: The Naked Receipt -->
-                <div class="receipt-bg brutal-border p-8 zig-zag-bottom reveal">
-                    <div class="flex justify-between items-start mb-6 border-b-2 border-dashed border-void pb-4">
-                        <span class="font-mono text-xs font-bold uppercase">Pillar 02</span>
-                        <span class="font-mono text-xs font-bold uppercase">Open Source</span>
+                <!-- Pillar 2 -->
+                <div class="receipt-bg p-10 zig-zag-bottom hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
+                    <div class="flex justify-between items-start mb-10 border-b border-zinc/50 border-dashed pb-4">
+                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 02</span>
+                        <span class="font-mono text-[10px] text-muted tracking-[0.2em] uppercase">Open Source</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-2 text-center">Open-Source Economics</h4>
-                    <p class="font-mono text-sm text-zinc mb-6 text-center leading-relaxed">
-                        We literally publish our company P&L on social media. We show users exactly why we charge what we charge, destroying the "hidden fee" anxiety.
+                    <h4 class="text-2xl font-bold uppercase mb-4 text-center">Open-Source Economics</h4>
+                    <p class="font-mono text-sm text-muted mb-8 text-center font-light">
+                        We literally publish our company P&L on social media. We show users exactly why we charge what we charge.
                     </p>
-                    <div class="font-mono text-xs space-y-2 mt-4">
-                        <div class="flex justify-between"><span>User Default Rate:</span> <span>3.2%</span></div>
-                        <div class="flex justify-between"><span>Cloud/Tech Cost:</span> <span>₹14/user</span></div>
-                        <div class="flex justify-between text-red-600"><span>Money Lost to Fraud:</span> <span>₹1.2L</span></div>
-                        <div class="flex justify-between font-bold border-t border-dashed border-void pt-2"><span>Our Net Margin:</span> <span>4.1%</span></div>
+                    <div class="font-mono text-xs space-y-3 mt-6 border-y border-zinc/50 border-dashed py-6">
+                        <div class="flex justify-between text-muted"><span>User Default Rate:</span> <span class="text-paper">3.2%</span></div>
+                        <div class="flex justify-between text-muted"><span>Cloud/Tech Cost:</span> <span class="text-paper">₹14/user</span></div>
+                        <div class="flex justify-between text-lime"><span>Our Net Margin:</span> <span>4.1%</span></div>
                     </div>
-                    <div class="mt-6 border-t-2 border-void pt-4">
-                        <h5 class="font-bold text-xs uppercase tracking-widest mb-2">Caption Copy:</h5>
-                        <p class="font-mono text-xs bg-zinc/10 p-3 italic">
-                            "Last month, 3.2% of people didn't pay us back. Instead of hiding it, we are showing you the math. We charge a 15% flat rate so we can cover the defaults AND pay our engineers. No asterisks. No 'zero-percent' illusions. Just raw math."
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="bg-[#0a0a0c] p-10 rounded-sm glow-border hover:-translate-y-2 transition-transform duration-500 gsap-reveal">
+                    <div class="flex justify-between items-start mb-10 border-b border-zinc/30 pb-4">
+                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 03</span>
+                    </div>
+                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper">The 48-Hour R.O.I</h4>
+                    <p class="font-mono text-sm text-muted mb-8 font-light">
+                        Micro-documentaries highlighting fast-paced capital deployment. Showing how entrepreneurs across age groups use our capital as a tactical weapon.
+                    </p>
+                    <div class="bg-void/50 p-5 rounded border border-white/5">
+                        <h5 class="font-mono text-[10px] text-lime uppercase tracking-widest mb-3">Execution:</h5>
+                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
+                            Suresh, 47, borrows ₹60k for pre-Diwali kirana stock. Sells ₹1.8L in 10 days. Repays ₹60,900. Same principle. Different generation. Same WeCredit.
                         </p>
                     </div>
                 </div>
 
-                <!-- Pillar 3: The BS Dictionary -->
-                <div class="brutal-border p-8 bg-void text-paper reveal">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Pillar 03</span>
-                        <svg class="w-8 h-8 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <!-- Pillar 4 -->
+                <div class="bg-zinc/20 p-10 rounded-sm border border-lime/30 hover:-translate-y-2 transition-transform duration-500 gsap-reveal overflow-hidden relative">
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-lime/10 blur-[60px] rounded-full"></div>
+                    <div class="flex justify-between items-start mb-10 border-b border-lime/20 pb-4 relative z-10">
+                        <span class="font-mono text-[10px] text-lime tracking-[0.2em] uppercase">Pillar 04</span>
+                        <span class="font-mono text-[10px] bg-lime/10 text-lime px-2 py-1 rounded">Cross-Generational</span>
                     </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-lime">The 48-Hour R.O.I</h4>
-                    <p class="font-mono text-sm text-muted mb-6 leading-relaxed">
-                        Micro-documentaries highlighting extreme, fast-paced capital deployment. Showing how entrepreneurs across age groups use our capital as a tactical weapon—a weekend flip for a 22-year-old, a seasonal stock-up for a 48-year-old.
+                    <h4 class="text-2xl font-bold uppercase mb-4 text-paper relative z-10">Algorithmic Nihilism & Trust</h4>
+                    <p class="font-mono text-sm text-muted mb-8 font-light relative z-10">
+                        For the younger cohort, we lean into internet culture and the "unhinged admin". For the 40+ base, we build trust through vernacular case studies and WhatsApp-native content. 
                     </p>
-                    <div class="border-t-2 border-zinc pt-4">
-                        <h5 class="font-bold text-xs uppercase tracking-widest text-lime mb-2">Execution (Carousel/Shorts):</h5>
-                        <p class="font-mono text-xs bg-zinc/30 p-3 italic text-muted">
-                            Slide 1 (Friday 4 PM): Aman, 22, borrows ₹10k from WeCredit to buy bulk inventory for a weekend flea market.<br><br>
-                            Slide 2 (Sunday 9 PM): Aman posts ₹28k in sales.<br><br>
-                            Slide 3 (Monday 9 AM): Aman repays ₹10,150. Profit: ₹17,850. <strong>This is what Good Debt looks like.</strong><br><br>
-                            Slide 4: Suresh, 47, borrows ₹60k for pre-Diwali kirana stock. Sells ₹1.8L in 10 days. Repays ₹60,900. <strong>Same principle. Different generation. Same WeCredit.</strong>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Pillar 4: Corporate Shitposting & Lore -->
-                <div class="brutal-border-lime p-8 bg-zinc text-paper reveal relative overflow-hidden">
-                    <div class="absolute -right-4 -top-8 text-[8rem] opacity-10 font-bold rotate-12 select-none">💀</div>
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="font-mono text-xs bg-lime text-void px-2 py-1 uppercase font-bold">Pillar 04</span>
-                        <span class="font-mono text-xs text-lime border border-lime px-2 py-1 uppercase bg-void/50 backdrop-blur-sm">Cross-Generational Vector</span>
-                    </div>
-                    <h4 class="text-2xl font-bold uppercase mb-4 text-white">Algorithmic Nihilism & Lore</h4>
-                    <p class="font-mono text-sm text-muted mb-6 leading-relaxed">
-                        For the younger cohort, we lean into internet culture, memes, and the "unhinged admin" persona. For the 40+ base, we build trust through radical transparency and WhatsApp-native content—vernacular case studies, voice-note testimonials, and community-driven credibility. Two languages, one principle: banks failed you, we won't.
-                    </p>
-                    <div class="border-t-2 border-lime/30 pt-4">
-                        <h5 class="font-bold text-xs uppercase tracking-widest text-lime mb-2">Execution (TikTok/Reels Stitches):</h5>
-                        <p class="font-mono text-xs bg-void/80 p-3 italic text-paper border-l-4 border-lime">
-                            <strong>Track A (Under 30 / Reels):</strong> Generic finfluencer saying "Invest ₹500 SIP for 40 years..." → WeCredit Admin stitch: "The economy is cooked. Take ₹20k, flip sneakers this weekend, return in 48 hours. Stay liquid." <br><br>
-                            <strong>Track B (40+ / WhatsApp):</strong> 90-second voice-note from Ramesh, 46, Pune: "Main 3 bank gaya, sab ne mana kiya. WeCredit ne 4 minute mein ₹70k diya. Dukaan ka stock bhar liya. Ab main unka kya karunga bank ka?" Forwarded 1,400 times in seller WhatsApp groups.
+                    <div class="bg-[#070709]/80 p-5 rounded border-l-2 border-lime relative z-10 backdrop-blur-sm">
+                        <p class="font-mono text-xs text-muted italic font-light leading-relaxed">
+                            <strong>Track B (WhatsApp):</strong> 90-second voice-note from Ramesh, 46: "Main 3 bank gaya, sab ne mana kiya. WeCredit ne 4 minute mein ₹70k diya. Ab main unka kya karunga bank ka?"
                         </p>
                     </div>
                 </div>
@@ -495,86 +422,76 @@
         </div>
     </section>
 
-    <section class="py-16 px-6 border-b-2 border-zinc bg-[#111113]">
-        <div class="max-w-screen-2xl mx-auto reveal">
-            <h2 class="font-mono text-lime tracking-widest text-sm uppercase mb-8 border-b border-zinc pb-4">Multi-Generational Distribution Tactics</h2>
+    <!-- TACTICS -->
+    <section class="py-32 px-8 bg-[#0c0c0e] border-t border-zinc/20">
+        <div class="max-w-screen-2xl mx-auto">
+            <h2 class="font-mono text-lime tracking-[0.3em] text-xs uppercase mb-16 text-center gsap-reveal">Multi-Generational Tactics</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
-                <!-- Tactic 1 -->
-                <div class="p-6 border border-zinc hover:border-lime transition-colors bg-void group">
-                    <div class="text-lime text-2xl mb-4 group-hover:scale-110 transition-transform">👾</div>
-                    <h4 class="text-white text-lg font-bold uppercase mb-2">Gamified Bounties (Under 30)</h4>
-                    <p class="text-muted text-xs leading-relaxed">
-                        Young users ignore "Refer a friend for ₹100." We frame growth as multiplayer missions. "Bounty: Get 3 friends to complete their first 48-hour arbitrage. Reward: Zero-fee capital for a month." Treat the app ecosystem like a Discord server economy.
-                    </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 font-mono">
+                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal">
+                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">👾</div>
+                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">Gamified Bounties (Under 30)</h4>
+                    <p class="text-muted text-xs leading-relaxed font-light">Young users ignore basic referrals. We frame growth as multiplayer missions. "Bounty: Get 3 friends to complete their first arbitrage. Reward: Zero-fee capital."</p>
                 </div>
-
-                <!-- Tactic 2 -->
-                <div class="p-6 border border-zinc hover:border-lime transition-colors bg-void group">
-                    <div class="text-lime text-2xl mb-4 group-hover:scale-110 transition-transform">📲</div>
-                    <h4 class="text-white text-lg font-bold uppercase mb-2">WhatsApp-Native Trust (40+)</h4>
-                    <p class="text-muted text-xs leading-relaxed">
-                        Our core 40+ base lives on WhatsApp, not Instagram. We deploy vernacular voice-note testimonials, forwarded case studies in Hindi/regional languages, and community group infiltration. A real shopkeeper vouching for WeCredit in a 500-member trader group is worth 10,000 ad impressions.
-                    </p>
+                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal delay-100">
+                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">📲</div>
+                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">WhatsApp Trust (40+)</h4>
+                    <p class="text-muted text-xs leading-relaxed font-light">Our core 40+ base lives on WhatsApp. We deploy vernacular voice-note testimonials and community group infiltration. A shopkeeper vouching in a trader group is worth 10k ads.</p>
                 </div>
-
-                <!-- Tactic 3 -->
-                <div class="p-6 border border-zinc hover:border-lime transition-colors bg-void group">
-                    <div class="text-lime text-2xl mb-4 group-hover:scale-110 transition-transform">🎭</div>
-                    <h4 class="text-white text-lg font-bold uppercase mb-2">The Admin Persona (Universal)</h4>
-                    <p class="text-muted text-xs leading-relaxed">
-                        WeCredit is represented by a faceless, sharp, highly intelligent "Admin" figure across all channels. On Reels, they roast bad financial advice. On WhatsApp, they send blunt, no-BS financial tips. One persona, adapted per platform—a rebellious ally fighting the banks for every age group.
-                    </p>
+                <div class="p-8 border-l border-zinc/30 hover:border-lime transition-colors group gsap-reveal delay-200">
+                    <div class="text-lime text-2xl mb-6 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">🎭</div>
+                    <h4 class="text-paper text-sm font-bold uppercase mb-4 tracking-widest">The Admin (Universal)</h4>
+                    <p class="text-muted text-xs leading-relaxed font-light">WeCredit is represented by a faceless, sharp "Admin". On Reels, they roast bad advice. On WhatsApp, they send blunt financial tips. One rebellious ally fighting the banks.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="py-24 px-6 border-b-2 border-zinc bg-void">
-        <div class="max-w-screen-xl mx-auto text-center reveal">
-            <h2 class="font-mono text-lime tracking-widest text-sm uppercase mb-4">The Ultimate Differentiator</h2>
-            <h3 class="text-4xl md:text-6xl font-bold uppercase tracking-tight mb-8">The Self-Destructing <br> <span style="-webkit-text-stroke: 1px #f4f4f5; color: transparent;">Credit Line.</span></h3>
+    <!-- ENDING -->
+    <section class="py-40 px-8 bg-void border-t border-zinc/20 overflow-hidden relative">
+        <div class="max-w-screen-xl mx-auto text-center relative z-10">
+            <h2 class="font-mono text-lime tracking-[0.4em] text-[10px] uppercase mb-8 gsap-reveal">The Ultimate Differentiator</h2>
+            <h3 class="text-5xl md:text-[6rem] font-bold uppercase tracking-tighter mb-12 leading-none gsap-reveal">
+                The Self-Destructing <br> <span class="text-muted" style="-webkit-text-stroke: 1px #8a8a93; color: transparent;">Credit Line.</span>
+            </h3>
             
-            <p class="font-mono text-lg text-muted max-w-3xl mx-auto mb-16 leading-relaxed">
-                Legacy lenders want to trap you in a 10-year cycle of minimum payments. WeCredit differentiates by openly stating our goal: <strong class="text-lime">We want to fire you as a customer.</strong> We use your micro-repayments to actively build your formal CIBIL score until you graduate to Prime Banking rates.
+            <p class="font-mono text-base text-muted max-w-2xl mx-auto mb-24 leading-relaxed font-light gsap-reveal">
+                Legacy lenders trap you in a 10-year cycle of minimum payments. WeCredit differentiates by openly stating our goal: <strong class="text-paper font-normal border-b border-lime pb-1">We want to fire you as a customer.</strong> We use your micro-repayments to actively build your formal CIBIL score until you graduate to Prime Banking rates.
             </p>
 
-            <!-- Visual Flowchart using HTML/CSS -->
-            <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 font-mono text-sm">
-                <div class="brutal-border-lime p-6 bg-zinc/30 max-w-xs">
-                    <span class="block text-lime text-2xl font-bold mb-2">Phase 1</span>
-                    <strong class="uppercase block mb-2 text-white">Ghost to Known</strong>
-                    <span class="text-muted text-xs">We underwrite you based purely on UPI velocity. Instant micro-capital.</span>
+            <div class="flex flex-col md:flex-row items-stretch justify-center gap-6 font-mono text-sm max-w-4xl mx-auto">
+                <div class="border border-zinc/30 p-8 bg-[#0a0a0c] rounded flex-1 gsap-reveal text-left hover:border-lime/50 transition-colors">
+                    <span class="block text-lime text-xs tracking-widest mb-4">PHASE 1</span>
+                    <strong class="uppercase block mb-3 text-paper text-lg">Ghost to Known</strong>
+                    <span class="text-muted text-xs font-light leading-relaxed">We underwrite you based purely on UPI velocity. Instant micro-capital.</span>
                 </div>
-                <div class="text-lime text-2xl hidden md:block">→</div>
-                <div class="text-lime text-2xl rotate-90 md:hidden my-2">→</div>
                 
-                <div class="brutal-border-lime p-6 bg-zinc/30 max-w-xs">
-                    <span class="block text-lime text-2xl font-bold mb-2">Phase 2</span>
-                    <strong class="uppercase block mb-2 text-white">Score Farming</strong>
-                    <span class="text-muted text-xs">Every successful 48-hour ROI cycle builds your official CIBIL score in the background.</span>
+                <div class="border border-zinc/30 p-8 bg-[#0a0a0c] rounded flex-1 gsap-reveal text-left hover:border-lime/50 transition-colors">
+                    <span class="block text-lime text-xs tracking-widest mb-4">PHASE 2</span>
+                    <strong class="uppercase block mb-3 text-paper text-lg">Score Farming</strong>
+                    <span class="text-muted text-xs font-light leading-relaxed">Every successful 48-hour ROI cycle builds your official CIBIL score in the background.</span>
                 </div>
-                <div class="text-lime text-2xl hidden md:block">→</div>
-                <div class="text-lime text-2xl rotate-90 md:hidden my-2">→</div>
 
-                <div class="brutal-border p-6 bg-lime text-void max-w-xs shadow-[8px_8px_0px_#f4f4f5] transform -translate-y-2">
-                    <span class="block text-void text-2xl font-bold mb-2">Phase 3</span>
-                    <strong class="uppercase block mb-2">Graduation / Exile</strong>
-                    <span class="text-void font-semibold text-xs">You hit 750 CIBIL. We lock your WeCredit account and give you a guide on how to get a 10% bank loan. You outgrew us.</span>
+                <div class="border border-lime p-8 bg-lime/5 rounded flex-1 gsap-reveal text-left relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-lime transform -translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
+                    <div class="relative z-10 group-hover:text-void transition-colors duration-500">
+                        <span class="block text-lime text-xs tracking-widest mb-4 group-hover:text-void opacity-80">PHASE 3</span>
+                        <strong class="uppercase block mb-3 text-paper text-lg group-hover:text-void">Graduation</strong>
+                        <span class="text-muted text-xs font-light leading-relaxed group-hover:text-void font-semibold">You hit 750 CIBIL. We lock your WeCredit account and give you a guide on how to get a 10% bank loan. You outgrew us.</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="bg-void py-12 text-center border-t-8 border-lime relative overflow-hidden">
-        <!-- Abstract background elements -->
-        <div class="absolute -top-10 -left-10 text-zinc font-mono text-[10rem] font-bold opacity-10 select-none">WC/26</div>
+    <footer class="bg-void py-16 text-center border-t border-zinc/20 relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc/10 font-mono text-[15rem] font-bold select-none pointer-events-none">WC/26</div>
         
         <div class="relative z-10">
-            <div class="font-sans text-3xl font-bold tracking-tighter uppercase mb-4 text-paper">
-                WeCredit
+            <div class="font-sans text-2xl font-bold tracking-widest uppercase mb-6 text-paper flex justify-center items-center gap-3">
+                <div class="w-2 h-2 bg-lime rounded-full"></div> WECREDIT
             </div>
-            <p class="font-mono text-xs tracking-widest uppercase text-muted">Brand Strategy Audit &copy; 2026 // Prepared in Mumbai, MH</p>
+            <p class="font-mono text-[10px] tracking-[0.3em] uppercase text-muted">Brand Strategy Audit &copy; 2026 // Prepared in Mumbai, MH</p>
         </div>
     </footer>
 
@@ -582,17 +499,15 @@
         document.addEventListener("DOMContentLoaded", function() {
             gsap.registerPlugin(ScrollTrigger);
 
-            // 1. Lenis Smooth Scroll
+            // 1. Lenis Smooth Scroll (Softened for Premium feel)
             const lenis = new Lenis({
-                duration: 1.2,
+                duration: 1.5,
                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                 direction: 'vertical',
                 gestureDirection: 'vertical',
                 smooth: true,
-                mouseMultiplier: 1,
                 smoothTouch: false,
                 touchMultiplier: 2,
-                infinite: false,
             });
 
             lenis.on('scroll', ScrollTrigger.update);
@@ -614,20 +529,21 @@
             });
 
             const renderCursor = () => {
-                outlineX += (mouseX - outlineX) * 0.15;
-                outlineY += (mouseY - outlineY) * 0.15;
+                outlineX += (mouseX - outlineX) * 0.12;
+                outlineY += (mouseY - outlineY) * 0.12;
                 cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
                 requestAnimationFrame(renderCursor);
             };
             renderCursor();
 
-            const interactiveElements = document.querySelectorAll('a, button, .mood-img-wrap, .brutal-border, .brutal-border-lime');
+            // Hover state for interactive elements
+            const interactiveElements = document.querySelectorAll('a, button, .mood-img-wrap, .glow-border, .border-lime');
             interactiveElements.forEach(el => {
                 el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
                 el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
             });
 
-            // 3. WebGL/Canvas Noise Effect
+            // 3. Subtle WebGL/Canvas Noise Effect
             const canvas = document.getElementById('noise-canvas');
             const ctxCanvas = canvas.getContext('2d');
             let wWidth, wHeight;
@@ -640,7 +556,7 @@
                 const buffer32 = new Uint32Array(idata.data.buffer);
                 const len = buffer32.length;
                 for (let i = 0; i < len; i++) {
-                    if (Math.random() < 0.5) { buffer32[i] = 0xff000000; }
+                    if (Math.random() < 0.5) { buffer32[i] = 0xffffffff; } // White noise mapped with blend-mode
                 }
                 noiseData.push(idata);
             };
@@ -672,78 +588,70 @@
                 setup();
             });
 
-            // 4. GSAP Animations
-            // Clean up old CSS reveal classes since we use GSAP now
-            document.querySelectorAll('.reveal').forEach(el => el.classList.remove('reveal'));
+            // 4. GSAP Advanced Animations (The WOW Factor)
+            
+            // Hero Text Mask Reveal
+            const tl = gsap.timeline({ delay: 0.2 });
+            tl.to(".hero-text", { y: 0, duration: 1.4, ease: "power4.out", stagger: 0.15 })
+              .to(".hero-fade", { opacity: 1, y: 0, duration: 1.2, ease: "power2.out", stagger: 0.1 }, "-=1");
 
-            // Hero Animation
-            gsap.from(".pt-32 h1", { y: 100, opacity: 0, duration: 1.5, ease: "power4.out", delay: 0.2 });
-            gsap.from(".pt-32 p", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.8 });
+            // Setup initial states for hero fades
+            gsap.set(".hero-fade", { opacity: 0, y: 30 });
 
-            // Parallax Hero
-            gsap.to(".pt-32", {
-                yPercent: 30,
-                ease: "none",
-                scrollTrigger: { trigger: ".pt-32", start: "top top", end: "bottom top", scrub: true }
+            // Smooth ScrollTrigger Batching for the rest of the site
+            gsap.utils.toArray('.gsap-reveal').forEach((elem) => {
+                gsap.fromTo(elem, 
+                    { y: 60, opacity: 0 },
+                    { 
+                        y: 0, 
+                        opacity: 1, 
+                        duration: 1.2, 
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: "top 85%",
+                            toggleActions: "play none none reverse"
+                        }
+                    }
+                );
             });
 
             // Moodboard Image Parallax
             gsap.utils.toArray('.mood-img-wrap img').forEach(img => {
                 gsap.to(img, {
-                    scale: 1.15,
+                    scale: 1.1,
+                    yPercent: 10,
                     ease: "none",
                     scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true }
                 });
             });
 
-            // 3D Tilt Effect on Cards
-            const tiltCards = document.querySelectorAll('#pillars .brutal-border, #pillars .brutal-border-lime');
-            tiltCards.forEach(card => {
-                card.addEventListener('mousemove', e => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -10;
-                    const rotateY = ((x - centerX) / centerX) * 10;
-                    
-                    gsap.to(card, {
-                        rotateX: rotateX,
-                        rotateY: rotateY,
-                        transformPerspective: 1000,
-                        ease: "power2.out",
-                        duration: 0.5
-                    });
-                });
-                card.addEventListener('mouseleave', () => {
-                    gsap.to(card, { rotateX: 0, rotateY: 0, ease: "elastic.out(1, 0.3)", duration: 1.5 });
-                });
-            });
-
-            // Brutalist ChartJS Configuration
+            // Chart Initialization (Subdued for new aesthetics)
             const ctxBrutalist = document.getElementById('brutalistChart');
             if (ctxBrutalist) {
-                Chart.defaults.color = '#a1a1aa';
+                Chart.defaults.color = '#8a8a93';
                 Chart.defaults.font.family = '"Space Mono", monospace';
                 new Chart(ctxBrutalist, {
                     type: 'bar',
                     data: {
-                        labels: ['Inventory', 'Payroll', 'Lifestyle/Flex', 'Medical'],
+                        labels: ['Inventory', 'Payroll', 'Lifestyle', 'Medical'],
                         datasets: [{
                             label: 'Approval Rate %',
                             data: [85, 90, 12, 75],
-                            backgroundColor: '#00d4ff',
-                            borderWidth: 2,
-                            borderColor: '#09090b',
-                            barPercentage: 0.6,
-                            categoryPercentage: 0.8
+                            backgroundColor: 'rgba(0, 212, 255, 0.8)',
+                            hoverBackgroundColor: '#00d4ff',
+                            borderWidth: 0,
+                            borderRadius: 2,
+                            barPercentage: 0.5,
                         }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#27272a', titleFont: { family: '"Space Mono"', size: 12 }, bodyFont: { family: '"Space Mono"', size: 14, weight: 'bold' }, padding: 10, cornerRadius: 0, displayColors: false } },
-                        scales: { y: { beginAtZero: true, max: 100, grid: { color: '#27272a', tickLength: 0 }, border: { dash: [4, 4] }, ticks: { font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#f4f4f5' } } }
+                        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f1f22', titleFont: { size: 10 }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 4, displayColors: false } },
+                        scales: { 
+                            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)', tickLength: 0 }, border: { display: false }, ticks: { font: { size: 9 } } }, 
+                            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#8a8a93' }, border: { display: false } } 
+                        }
                     }
                 });
             }
