@@ -21,7 +21,7 @@
                     colors: {
                         void: '#09090b',       /* Pitch Black */
                         paper: '#f4f4f5',      /* Off-white */
-                        lime: '#ccff00',       /* High-visibility Neon Lime */
+                        lime: '#00d4ff',       /* High-visibility Neon Blue */
                         zinc: '#27272a',
                         muted: '#a1a1aa'
                     }
@@ -31,10 +31,10 @@
     </script>
     <style>
         body { background-color: #09090b; color: #f4f4f5; overflow-x: hidden; }
-        ::selection { background-color: #ccff00; color: #09090b; }
+        ::selection { background-color: #00d4ff; color: #09090b; }
         
         .brutal-border { border: 2px solid #27272a; }
-        .brutal-border-lime { border: 2px solid #ccff00; }
+        .brutal-border-lime { border: 2px solid #00d4ff; }
         
         /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; }
@@ -50,7 +50,7 @@
             color: #09090b;
             background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
             background-size: 10px 10px;
-            box-shadow: 8px 8px 0px #ccff00;
+            box-shadow: 8px 8px 0px #00d4ff;
         }
         .zig-zag-bottom {
             position: relative;
@@ -227,7 +227,7 @@
                 </div>
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
                     <div>
-                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-4">AI-Generated<br>Mood<span style="-webkit-text-stroke: 2px #f4f4f5; color: transparent;">board.</span></h2>
+                        <h2 class="text-5xl md:text-7xl font-bold uppercase tracking-tighter leading-none mb-4">Mood<span style="-webkit-text-stroke: 2px #f4f4f5; color: transparent;">board.</span></h2>
                         <p class="font-mono text-muted text-sm max-w-lg leading-relaxed">Every visual asset below was generated to define WeCredit's visual language. Dark. Brutal. Unapologetically neon. No stock photography. No corporate blue.</p>
                     </div>
                     <div class="brutal-border-lime px-4 py-2 font-mono text-xs uppercase tracking-widest text-lime bg-void">
@@ -321,7 +321,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-lime"></div>
-                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Neon Lime</span><span class="text-muted">#ccff00</span></div>
+                        <div class="font-mono text-xs"><span class="text-paper block font-bold">Neon Blue</span><span class="text-muted">#00d4ff</span></div>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-paper"></div>
@@ -558,7 +558,7 @@
                             {
                                 label: 'Approval Rate %',
                                 data: [85, 90, 12, 75],
-                                backgroundColor: '#ccff00', // Lime
+                                backgroundColor: '#00d4ff', // Neon Blue
                                 borderWidth: 2,
                                 borderColor: '#09090b',
                                 barPercentage: 0.6,
