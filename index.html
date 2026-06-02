@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Using a technical sans and a brutalist monospace for the "receipt/audit" aesthetic -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- GSAP & Lenis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -30,11 +34,44 @@
         }
     </script>
     <style>
-        body { background-color: #09090b; color: #f4f4f5; overflow-x: hidden; }
+        body { background-color: #09090b; color: #f4f4f5; overflow-x: hidden; cursor: none; }
         ::selection { background-color: #00d4ff; color: #09090b; }
         
         .brutal-border { border: 2px solid #27272a; }
         .brutal-border-lime { border: 2px solid #00d4ff; }
+        
+        /* Custom Cursor */
+        .cursor-dot, .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot { width: 8px; height: 8px; background-color: #00d4ff; }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(0, 212, 255, 0.5); transition: width 0.2s, height 0.2s; }
+        .cursor-hover .cursor-outline { width: 60px; height: 60px; background-color: rgba(0, 212, 255, 0.1); border-color: transparent; mix-blend-mode: difference; }
+
+        /* Noise Overlay */
+        #noise-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.05;
+        }
+
+        /* Lenis Smooth Scroll Recommended CSS */
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-smooth iframe { pointer-events: none; }
         
         /* Marquee Animation */
         .marquee-container { overflow: hidden; white-space: nowrap; width: 100vw; }
@@ -111,6 +148,11 @@
     </style>
 </head>
 <body class="font-sans antialiased text-paper bg-void">
+
+    <!-- Custom Cursor & Noise -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <canvas id="noise-canvas"></canvas>
 
     <nav class="fixed w-full top-0 z-50 bg-void/90 backdrop-blur-sm border-b-2 border-zinc">
         <div class="max-w-screen-2xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -538,70 +580,170 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Scroll Reveal Animation
-            const reveals = document.querySelectorAll(".reveal");
-            function reveal() {
-                for (let i = 0; i < reveals.length; i++) {
-                    const windowHeight = window.innerHeight;
-                    const elementTop = reveals[i].getBoundingClientRect().top;
-                    const elementVisible = 100;
-                    if (elementTop < windowHeight - elementVisible) {
-                        reveals[i].classList.add("active");
-                    }
+            gsap.registerPlugin(ScrollTrigger);
+
+            // 1. Lenis Smooth Scroll
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                mouseMultiplier: 1,
+                smoothTouch: false,
+                touchMultiplier: 2,
+                infinite: false,
+            });
+
+            lenis.on('scroll', ScrollTrigger.update);
+            gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+            gsap.ticker.lagSmoothing(0);
+
+            // 2. Custom Magnetic Cursor
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let outlineX = mouseX;
+            let outlineY = mouseY;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+            });
+
+            const renderCursor = () => {
+                outlineX += (mouseX - outlineX) * 0.15;
+                outlineY += (mouseY - outlineY) * 0.15;
+                cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px) translate(-50%, -50%)`;
+                requestAnimationFrame(renderCursor);
+            };
+            renderCursor();
+
+            const interactiveElements = document.querySelectorAll('a, button, .mood-img-wrap, .brutal-border, .brutal-border-lime');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+            });
+
+            // 3. WebGL/Canvas Noise Effect
+            const canvas = document.getElementById('noise-canvas');
+            const ctxCanvas = canvas.getContext('2d');
+            let wWidth, wHeight;
+            let noiseData = [];
+            let frame = 0;
+            let loopTimeout;
+
+            const createNoise = () => {
+                const idata = ctxCanvas.createImageData(wWidth, wHeight);
+                const buffer32 = new Uint32Array(idata.data.buffer);
+                const len = buffer32.length;
+                for (let i = 0; i < len; i++) {
+                    if (Math.random() < 0.5) { buffer32[i] = 0xff000000; }
                 }
-            }
-            window.addEventListener("scroll", reveal);
-            reveal();
+                noiseData.push(idata);
+            };
+
+            const paintNoise = () => {
+                if (frame === 9) { frame = 0; } else { frame++; }
+                ctxCanvas.putImageData(noiseData[frame], 0, 0);
+            };
+
+            const loop = () => {
+                paintNoise();
+                loopTimeout = window.setTimeout(() => {
+                    requestAnimationFrame(loop);
+                }, (1000 / 25));
+            };
+
+            const setup = () => {
+                wWidth = window.innerWidth;
+                wHeight = window.innerHeight;
+                canvas.width = wWidth;
+                canvas.height = wHeight;
+                for (let i = 0; i < 10; i++) { createNoise(); }
+                loop();
+            };
+
+            setup();
+            window.addEventListener('resize', () => {
+                window.clearTimeout(loopTimeout);
+                setup();
+            });
+
+            // 4. GSAP Animations
+            // Clean up old CSS reveal classes since we use GSAP now
+            document.querySelectorAll('.reveal').forEach(el => el.classList.remove('reveal'));
+
+            // Hero Animation
+            gsap.from(".pt-32 h1", { y: 100, opacity: 0, duration: 1.5, ease: "power4.out", delay: 0.2 });
+            gsap.from(".pt-32 p", { y: 50, opacity: 0, duration: 1, ease: "power3.out", delay: 0.8 });
+
+            // Parallax Hero
+            gsap.to(".pt-32", {
+                yPercent: 30,
+                ease: "none",
+                scrollTrigger: { trigger: ".pt-32", start: "top top", end: "bottom top", scrub: true }
+            });
+
+            // Moodboard Image Parallax
+            gsap.utils.toArray('.mood-img-wrap img').forEach(img => {
+                gsap.to(img, {
+                    scale: 1.15,
+                    ease: "none",
+                    scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true }
+                });
+            });
+
+            // 3D Tilt Effect on Cards
+            const tiltCards = document.querySelectorAll('#pillars .brutal-border, #pillars .brutal-border-lime');
+            tiltCards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+                    
+                    gsap.to(card, {
+                        rotateX: rotateX,
+                        rotateY: rotateY,
+                        transformPerspective: 1000,
+                        ease: "power2.out",
+                        duration: 0.5
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, { rotateX: 0, rotateY: 0, ease: "elastic.out(1, 0.3)", duration: 1.5 });
+                });
+            });
 
             // Brutalist ChartJS Configuration
-            const ctx = document.getElementById('brutalistChart');
-            if (ctx) {
-                Chart.defaults.color = '#a1a1aa'; // text-muted
+            const ctxBrutalist = document.getElementById('brutalistChart');
+            if (ctxBrutalist) {
+                Chart.defaults.color = '#a1a1aa';
                 Chart.defaults.font.family = '"Space Mono", monospace';
-                
-                new Chart(ctx, {
+                new Chart(ctxBrutalist, {
                     type: 'bar',
                     data: {
                         labels: ['Inventory', 'Payroll', 'Lifestyle/Flex', 'Medical'],
-                        datasets: [
-                            {
-                                label: 'Approval Rate %',
-                                data: [85, 90, 12, 75],
-                                backgroundColor: '#00d4ff', // Neon Blue
-                                borderWidth: 2,
-                                borderColor: '#09090b',
-                                barPercentage: 0.6,
-                                categoryPercentage: 0.8
-                            }
-                        ]
+                        datasets: [{
+                            label: 'Approval Rate %',
+                            data: [85, 90, 12, 75],
+                            backgroundColor: '#00d4ff',
+                            borderWidth: 2,
+                            borderColor: '#09090b',
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.8
+                        }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#27272a',
-                                titleFont: { family: '"Space Mono"', size: 12 },
-                                bodyFont: { family: '"Space Mono"', size: 14, weight: 'bold' },
-                                padding: 10,
-                                cornerRadius: 0,
-                                displayColors: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                grid: { color: '#27272a', tickLength: 0 },
-                                border: { dash: [4, 4] },
-                                ticks: { font: { size: 10 } }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { font: { size: 10 }, color: '#f4f4f5' }
-                            }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#27272a', titleFont: { family: '"Space Mono"', size: 12 }, bodyFont: { family: '"Space Mono"', size: 14, weight: 'bold' }, padding: 10, cornerRadius: 0, displayColors: false } },
+                        scales: { y: { beginAtZero: true, max: 100, grid: { color: '#27272a', tickLength: 0 }, border: { dash: [4, 4] }, ticks: { font: { size: 10 } } }, x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#f4f4f5' } } }
                     }
                 });
             }
